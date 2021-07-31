@@ -8,7 +8,8 @@ WIDTH, HEIGHT = 1080, 700
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("2805ICT - Pacman!")
 
-font = "fonts/Emulogic.ttf"
+font = "assets/fonts/Emulogic.ttf"
+
 # Text Renderer
 def text_format(text, font, size, color):
     nFont=pygame.font.Font(font, size)

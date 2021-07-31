@@ -1,8 +1,8 @@
 from globalVariables import *
 import game
-import menu
+import menus
 
 if __name__ == "__main__":
-	menu.menu()
+	menus.main_menu()
 	quit()
 

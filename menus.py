@@ -1,7 +1,8 @@
 from globalVariables import *
 import game
 
-def menu():
+#main menu
+def main_menu():
 	menu=True
 	sel = "play"
 
@@ -81,3 +82,59 @@ def menu():
 		pygame.display.update()
 		clock.tick(FPS)
 		pygame.display.set_caption("2805ICT - Pacman")
+
+def pause_menu():
+	s = pygame.Surface((WIDTH,HEIGHT))
+	s.set_alpha(35)
+	s.fill((255,255,255))           
+	window.blit(s, (0,0))
+	sel = 'resume'
+
+	paused = True
+	while paused:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+			if event.type==pygame.KEYDOWN:
+				if event.key==pygame.K_UP:
+					if sel == "quit":
+						sel = "resume"
+				if event.key==pygame.K_DOWN:
+					if sel == "resume":
+						sel = "quit"
+				if event.key==pygame.K_RETURN:
+					if sel =="resume":
+						paused = False
+						return 1
+					elif sel =="quit":
+						
+						paused = False
+						return 0
+						#quit()
+
+		# Main Menu UI
+		
+		title=text_format("Pacman", font, 65, yellow)
+		if sel == "resume":
+		    text_resume=text_format("Resume", font, 45, yellow)
+		else:
+		    text_resume = text_format("Resume", font, 45, white)
+		if sel =="quit":
+		    text_quit = text_format("Quit", font, 45, yellow)
+		else:
+		    text_quit = text_format("Quit", font, 45, white)
+
+		title_rect=title.get_rect()
+		resume_rect=text_resume.get_rect()
+		quit_rect=text_quit.get_rect()
+
+		# Menu Title
+		window.blit(title, (WIDTH/2 - (title_rect[2]/2), 80))
+
+		# Menu Items
+		window.blit(text_resume, (WIDTH/2 - (resume_rect[2]/2), 240))
+		window.blit(text_quit, (WIDTH/2 - (quit_rect[2]/2), 360))
+
+		pygame.display.update()
+		clock.tick(FPS)
