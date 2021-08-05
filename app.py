@@ -49,6 +49,8 @@ class App:
 		self.mazeBG = pygame.image.load('assets/img/maze.png')
 		self.mazeBG = pygame.transform.scale(self.mazeBG, (WIDTH, HEIGHT))
 
+		self.title = pygame.image.load('assets/img/pacman-title.png')
+
 	def drawGrid(self):
 		for i in range(WIDTH//self.cellWidth):
 			pygame.draw.line(self.screen, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
@@ -86,6 +88,8 @@ class App:
 
 	def mMenu_draw(self):
 		self.screen.fill(black)
+
+		self.screen.blit(self.title, (WIDTH/2-300, 120))
 
 		if self.sel == 'play':
 			self.drawText('Play',self.screen, [WIDTH//2, HEIGHT//2], MENU_FONT, MENU_FONT_LARGE, yellow, True)
