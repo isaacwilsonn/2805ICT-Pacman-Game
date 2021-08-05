@@ -1,8 +1,8 @@
-from globalVariables import *
-import game
-import menus
+from app import *
 
-if __name__ == "__main__":
-	menus.main_menu()
-	quit()
 
+if __name__ == '__main__':
+	app = App()
+	app.run()
+
+answer = input('wrong')
