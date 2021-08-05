@@ -1,5 +1,6 @@
 import pygame
 import sys
+from player import *
 from settings import *
 
 pygame.init()
@@ -13,10 +14,15 @@ class App:
 		self.running = True
 		self.state = 'mMenu'
 		self.sel = 'play'
-		self.cellWidth = WIDTH//28
-		self.cellHeight = HEIGHT//30
+		self.cellWidth = mWIDTH//28
+		self.cellHeight = mHEIGHT//30
+		self.player = Player(self, START_POS_PLAYER)
 
 		self.load()
+
+		pygame.display.set_caption('Pacman')
+
+		pygame.display.set_icon(self.icon)
 
 	def run(self):
 		while self.running:
@@ -47,15 +53,16 @@ class App:
 
 	def load(self):
 		self.mazeBG = pygame.image.load('assets/img/maze.png')
-		self.mazeBG = pygame.transform.scale(self.mazeBG, (WIDTH, HEIGHT))
+		self.mazeBG = pygame.transform.scale(self.mazeBG, (mWIDTH, mHEIGHT))
 
 		self.title = pygame.image.load('assets/img/pacman-title.png')
+		self.icon = pygame.image.load('assets/img/pacman-icon.png')
 
 	def drawGrid(self):
 		for i in range(WIDTH//self.cellWidth):
-			pygame.draw.line(self.screen, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
+			pygame.draw.line(self.mazeBG, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
 		for i in range(HEIGHT//self.cellHeight):
-			pygame.draw.line(self.screen, gray, (0, i*self.cellHeight),(WIDTH, i*self.cellHeight))
+			pygame.draw.line(self.mazeBG, gray, (0, i*self.cellHeight),(WIDTH, i*self.cellHeight))
 
 	#########################	Main Menu State 	#########################
 
@@ -128,7 +135,11 @@ class App:
 		pass
 
 	def game_draw(self):
-		self.screen.blit(self.mazeBG, (0,0))
+		self.screen.fill(black)
+		self.screen.blit(self.mazeBG, (BORDER_BUFFER/2,BORDER_BUFFER/2))
 		self.drawGrid()
 
+		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
+		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
+		self.player.draw()
 		pygame.display.update()
