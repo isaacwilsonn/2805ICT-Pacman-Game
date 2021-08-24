@@ -21,6 +21,8 @@ class Ghost:
 		self.posPx += self.direction
 		self.canChangeDirection()
 		self.move()
+		self.img = self.getSprite()
+		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
 
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
@@ -56,13 +58,24 @@ class Ghost:
 			self.nextDirection = vec(1,0)
 
 	def getSprite(self):
+		#used to offset sprite sheet selection -> depending on direction
+		x = 0
+		if self.direction == vec(1,0):
+			x=0
+		elif self.direction == vec(-1,0):
+			x=2
+		elif self.direction == vec(0,-1):
+			x=4
+		else:
+			x=6
+
 		if self.color == "yellow":
-			return self.spriteSheet.grabImage(0, 7, 16, 16)	#yellow
+			return self.spriteSheet.grabImage(0+x, 7, 16, 16)	#yellow
 		elif self.color == "pink":
-			return self.spriteSheet.grabImage(0, 5, 16, 16)	#pink
+			return self.spriteSheet.grabImage(0+x, 5, 16, 16)	#pink
 		elif self.color == "blue":
-			return self.spriteSheet.grabImage(0, 6, 16, 16)	#blue
-		return self.spriteSheet.grabImage(0, 4, 16, 16)		#red
+			return self.spriteSheet.grabImage(0+x, 6, 16, 16)	#blue
+		return self.spriteSheet.grabImage(0+x, 4, 16, 16)		#red
 
 	def canChangeDirection(self, dir = 0):
 		#Check if inline with X grid
