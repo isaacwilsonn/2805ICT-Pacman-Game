@@ -2,6 +2,7 @@ import pygame
 import sys
 from player import *
 from settings import *
+from sprites import Spritesheet
 
 pygame.init()
 vec = pygame.math.Vector2
@@ -16,7 +17,8 @@ class App:
 		self.sel = 'play'
 		self.cellWidth = mWIDTH//28
 		self.cellHeight = mHEIGHT//30
-		self.player = Player(self, START_POS_PLAYER)
+		self.spriteSheet = Spritesheet()
+		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 
 		self.load()
 
@@ -113,11 +115,11 @@ class App:
 
 
 		#Course and students
-		self.drawText("2805ICT - 2021", self.screen, [0,750], MENU_FONT, MENU_FONT_SMALL, blue)
-		self.drawText("Harry Rowe", self.screen, [0,780], MENU_FONT, MENU_FONT_SMALL, blue)
-		self.drawText("Isaac Wilson",self.screen, [0,810], MENU_FONT, MENU_FONT_SMALL, blue)
-		self.drawText("Isaac Wingate", self.screen, [0,840], MENU_FONT, MENU_FONT_SMALL, blue)
-		self.drawText("Krittawat Auskulsuthi", self.screen, [0,870], MENU_FONT, MENU_FONT_SMALL, blue)
+		self.drawText("2805ICT - 2021", self.screen, [0,680], MENU_FONT, MENU_FONT_SMALL, blue)
+		self.drawText("Harry Rowe", self.screen, [0,710], MENU_FONT, MENU_FONT_SMALL, blue)
+		self.drawText("Isaac Wilson",self.screen, [0,740], MENU_FONT, MENU_FONT_SMALL, blue)
+		self.drawText("Isaac Wingate", self.screen, [0,770], MENU_FONT, MENU_FONT_SMALL, blue)
+		self.drawText("Krittawat Auskulsuthi", self.screen, [0,800], MENU_FONT, MENU_FONT_SMALL, blue)
 
 		#high score
 		self.drawText('HIGH SCORE:', self.screen, [4,0], MENU_FONT, 14, white)
@@ -130,13 +132,22 @@ class App:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.running = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_UP:
+					self.player.move(vec(0,-1))
+				if event.key == pygame.K_DOWN:
+					self.player.move(vec(0,1))
+				if event.key == pygame.K_LEFT:
+					self.player.move(vec(-1,0))
+				if event.key == pygame.K_RIGHT:
+					self.player.move(vec(1,0))
 
 	def game_update(self):
-		pass
+		self.player.update()
 
 	def game_draw(self):
 		self.screen.fill(black)
-		self.screen.blit(self.mazeBG, (BORDER_BUFFER/2,BORDER_BUFFER/2))
+		self.screen.blit(self.mazeBG, (BORDER_BUFFER//2,BORDER_BUFFER//2))
 		self.drawGrid()
 
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
