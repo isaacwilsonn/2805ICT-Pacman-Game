@@ -45,7 +45,8 @@ class Player:
 		else:
 			pygame.draw.circle(self.app.screen, yellow, (int(self.posPx.x),int(self.posPx.y)), self.app.cellWidth//2-2)
 
-		pygame.draw.rect(self.app.screen, red, (self.posGrid[0]*self.app.cellWidth+BORDER_BUFFER//2, self.posGrid[1]*self.app.cellHeight+BORDER_BUFFER//2, self.app.cellWidth, self.app.cellHeight),1)
+		#draw player rect for debugging
+		#pygame.draw.rect(self.app.screen, red, (self.posGrid[0]*self.app.cellWidth+BORDER_BUFFER//2, self.posGrid[1]*self.app.cellHeight+BORDER_BUFFER//2, self.app.cellWidth, self.app.cellHeight),1)
 	
 	def move(self, direction):
 		self.nextDirection = direction

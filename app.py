@@ -3,6 +3,7 @@ import sys
 from player import *
 from settings import *
 from sprites import Spritesheet
+from ghost import *
 
 pygame.init()
 vec = pygame.math.Vector2
@@ -19,6 +20,13 @@ class App:
 		self.cellHeight = mHEIGHT//30
 		self.spriteSheet = Spritesheet()
 		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
+		self.ghosts = []
+
+		#spawn ghosts hardcode
+		self.spawnGhosts(vec(11,13),"yellow")
+		self.spawnGhosts(vec(11,15),"red")
+		self.spawnGhosts(vec(16,13),"blue")
+		self.spawnGhosts(vec(16,15),"pink")
 
 		self.load()
 
@@ -60,6 +68,10 @@ class App:
 		self.title = pygame.image.load('assets/img/pacman-title.png')
 		self.icon = pygame.image.load('assets/img/pacman-icon.png')
 
+	def spawnGhosts(self, pos, color = "red"):
+		self.ghosts.append(Ghost(self, pos, self.spriteSheet, color))
+
+	#draw grid for debugging 
 	def drawGrid(self):
 		for i in range(WIDTH//self.cellWidth):
 			pygame.draw.line(self.mazeBG, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
@@ -145,12 +157,18 @@ class App:
 	def game_update(self):
 		self.player.update()
 
+		for ghost in self.ghosts:
+			ghost.update()
+
 	def game_draw(self):
 		self.screen.fill(black)
 		self.screen.blit(self.mazeBG, (BORDER_BUFFER//2,BORDER_BUFFER//2))
-		self.drawGrid()
+		#self.drawGrid()
 
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
 		self.player.draw()
+		for ghost in self.ghosts:
+			ghost.draw()
+
 		pygame.display.update()
