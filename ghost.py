@@ -2,6 +2,7 @@ import pygame
 import math
 from settings import *
 
+INF = 9999999
 vec = pygame.math.Vector2
 
 class Ghost:
@@ -12,20 +13,17 @@ class Ghost:
 		self.color = color
 		self.direction = vec(1,0)
 		self.nextDirection = None
-
 		self.spriteSheet = spriteSheet
-		self.img = self.getSprite()
-		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
-		self.rect=pygame.Rect(0,0,self.app.cellWidth,self.app.cellHeight)
-		self.rect.x = self.posGrid[0]
-		self.rect.y = self.posGrid[1]
+
+		self.imgArr = []
+		self.getSprite()
+		self.img = self.imgArr[0]
+		self.rect=pygame.Rect(self.posGrid[0],self.posGrid[1],self.app.cellWidth-1,self.app.cellHeight-1)
 
 	def update(self):
 		self.posPx += self.direction
 		self.canChangeDirection()
 		self.move()
-		self.img = self.getSprite()
-		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
 
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
@@ -33,8 +31,16 @@ class Ghost:
 		self.rect.x = self.posPx.x
 		self.rect.y = self.posPx.y
 
+		if self.direction == (0,1):	#down
+			self.img = self.imgArr[3]
+		elif self.direction == (0,-1):	#up
+			self.img = self.imgArr[2]
+		elif self.direction == (-1,0):	#left
+			self.img = self.imgArr[1]
+		elif self.direction == (1,0):	#right
+			self.img = self.imgArr[0]
+
 	def draw(self):
-		#pygame.draw.circle(self.app.screen, white, (int(self.posPx.x), int(self.posPx.y)), self.app.cellWidth//2-2)
 		self.app.screen.blit(self.img, (int(self.posPx.x),int(self.posPx.y)))
 
 	######################################################
@@ -49,6 +55,18 @@ class Ghost:
 		l = math.sqrt(abs(pow(self.posGrid.x-1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
 		r = math.sqrt(abs(pow(self.posGrid.x+1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
 
+		#down
+		if self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+			d = INF
+		#up
+		elif self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+			u = INF
+		#left
+		elif self.checkCollide(self.posPx.x+self.app.cellWidth,self.posPx.y):
+			r = INF
+		#right
+		elif self.checkCollide(self.posPx.x-self.app.cellWidth,self.posPx.y):
+			l = INF
 		#get index of shortest path
 		dirs = (u,d,l,r)
 		best = dirs.index(min(dirs))
@@ -64,51 +82,76 @@ class Ghost:
 
 	def getSprite(self):
 		#used to offset sprite sheet selection -> depending on direction
-		x = 0
-		if self.direction == vec(1,0):
-			x=0
-		elif self.direction == vec(-1,0):
-			x=2
-		elif self.direction == vec(0,-1):
-			x=4
-		else:
-			x=6
 
 		if self.color == "yellow":
-			return self.spriteSheet.grabImage(0+x, 7, 16, 16)	#yellow
+			self.imgArr.append(self.spriteSheet.grabImage(0, 7, 16, 16))
+			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(2, 7, 16, 16))
+			self.imgArr[1] = pygame.transform.smoothscale(self.imgArr[1], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(4, 7, 16, 16))
+			self.imgArr[2] = pygame.transform.smoothscale(self.imgArr[2], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(6, 7, 16, 16))
+			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 		elif self.color == "pink":
-			return self.spriteSheet.grabImage(0+x, 5, 16, 16)	#pink
+			self.imgArr.append(self.spriteSheet.grabImage(0, 5, 16, 16))
+			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(2, 5, 16, 16))
+			self.imgArr[1] = pygame.transform.smoothscale(self.imgArr[1], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(4, 5, 16, 16))
+			self.imgArr[2] = pygame.transform.smoothscale(self.imgArr[2], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(6, 5, 16, 16))
+			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 		elif self.color == "blue":
-			return self.spriteSheet.grabImage(0+x, 6, 16, 16)	#blue
-		return self.spriteSheet.grabImage(0+x, 4, 16, 16)		#red
+			self.imgArr.append(self.spriteSheet.grabImage(0, 6, 16, 16))
+			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(2, 6, 16, 16))
+			self.imgArr[1] = pygame.transform.smoothscale(self.imgArr[1], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(4, 6, 16, 16))
+			self.imgArr[2] = pygame.transform.smoothscale(self.imgArr[2], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(6, 6, 16, 16))
+			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))	#blue
+		else:
+			self.imgArr.append(self.spriteSheet.grabImage(0, 4, 16, 16))
+			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(2, 4, 16, 16))
+			self.imgArr[1] = pygame.transform.smoothscale(self.imgArr[1], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(4, 4, 16, 16))
+			self.imgArr[2] = pygame.transform.smoothscale(self.imgArr[2], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(6, 4, 16, 16))
+			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))	#red
 
 	def canChangeDirection(self, dir = 0):
-		#Check if inline with X grid
-		if int(self.posPx.x-BORDER_BUFFER//2) % self.app.cellWidth == 0:
-			if self.direction == vec(1,0) or self.direction == (-1,0):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
-		#Check if inline with Y grid
-		if int(self.posPx.y-BORDER_BUFFER//2) % self.app.cellHeight == 0:
-			if self.direction == vec(0,1) or self.direction == (0,-1):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
+		if self.nextDirection == vec(0,1) and not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+			self.direction = self.nextDirection
 
-	def wallCollide(self, walls):
-		for w in walls:
+		elif self.nextDirection == vec(0,-1) and not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+			self.direction = self.nextDirection
+
+		elif self.nextDirection == vec(1,0) and not self.checkCollide(self.posPx.x+self.app.cellWidth,self.posPx.y):
+			self.direction = self.nextDirection
+
+		elif self.nextDirection == vec(-1,0) and not self.checkCollide(self.posPx.x-self.app.cellWidth,self.posPx.y):
+			self.direction = self.nextDirection
+
+	def wallCollide(self):
+		for w in self.app.walls:
 			if self.rect.colliderect(w.rect):
 				if self.direction == vec(0,1):
-					self.direction = vec(0,-1)
-					return
+					self.direction = vec(0,0)
+					self.posPx.y = w.rect.top - self.app.cellHeight
+					
 				elif self.direction == vec(0,-1):
-					self.direction = vec(0,1)
-					return
+					self.direction = vec(0,0)
+					self.posPx.y = w.rect.bottom
+					
 				elif self.direction == vec(1,0):
-					self.direction = vec(-1,0)
-					return
+					self.direction = vec(0,0)
+					self.posPx.x = w.rect.left - self.app.cellWidth
+					
 				elif self.direction == vec(-1,0):
-					self.direction = vec(1,0)
-					return
+					self.direction = vec(0,0)
+					self.posPx.x = w.rect.right
+					
 
 	def ghostCollide(self):
 		for g in self.app.ghosts:
@@ -127,3 +170,11 @@ class Ghost:
 				elif self.direction == vec(-1,0):
 					self.direction = vec(1,0)
 					return
+
+	def checkCollide(self,x,y):
+		rec = pygame.Rect(x,y,self.app.cellWidth-1,self.app.cellHeight-1)
+		for w in self.app.walls:
+			if rec.colliderect(w.rect):
+				return True
+		return False
+					

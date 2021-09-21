@@ -28,9 +28,8 @@ class Player:
 		self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1)) 
 
 		self.img = self.imgArr[0]
-		self.rect=pygame.Rect(0,0,self.app.cellWidth,self.app.cellHeight)
-		self.rect.x = self.posGrid[0]
-		self.rect.y = self.posGrid[1]
+		self.rect=pygame.Rect(self.posGrid[0],self.posGrid[1],self.app.cellWidth,self.app.cellHeight)
+
 
 	def update(self):
 		self.posPx += self.direction
@@ -72,18 +71,20 @@ class Player:
 
 	def canChangeDirection(self):
 		#Check if inline with X grid
-		if int(self.posPx.x-BORDER_BUFFER//2) % self.app.cellWidth == 0:
-			if self.direction == vec(1,0) or self.direction == (-1,0) or self.direction == (0,0):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
-		#Check if inline with Y grid
-		if int(self.posPx.y-BORDER_BUFFER//2) % self.app.cellHeight == 0:
-			if self.direction == vec(0,1) or self.direction == (0,-1) or self.direction == (0,0):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
+		if self.nextDirection == vec(0,1) and not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+			self.direction = self.nextDirection
 
-	def wallCollide(self, walls):
-		for w in walls:
+		elif self.nextDirection == vec(0,-1) and not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+			self.direction = self.nextDirection
+
+		elif self.nextDirection == vec(1,0) and not self.checkCollide(self.posPx.x+self.app.cellWidth,self.posPx.y):
+			self.direction = self.nextDirection
+
+		elif self.nextDirection == vec(-1,0) and not self.checkCollide(self.posPx.x-self.app.cellWidth,self.posPx.y):
+			self.direction = self.nextDirection
+
+	def wallCollide(self):
+		for w in self.app.walls:
 			if self.rect.colliderect(w.rect):
 				if self.direction == vec(0,1):
 					self.direction = vec(0,0)
@@ -100,4 +101,11 @@ class Player:
 				elif self.direction == vec(-1,0):
 					self.direction = vec(0,0)
 					self.posPx.x = w.rect.right
+
+	def checkCollide(self,x,y):
+		rec = pygame.Rect(x,y,self.app.cellWidth,self.app.cellHeight)
+		for w in self.app.walls:
+			if rec.colliderect(w.rect):
+				return True
+		return False
 					

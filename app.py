@@ -28,10 +28,10 @@ class App:
 		self.mWalls = []
 
 		#spawn ghosts hardcode
-		self.spawnGhosts(vec(9,13),"yellow")
-		self.spawnGhosts(vec(9,15),"red")
-		self.spawnGhosts(vec(18,13),"blue")
-		self.spawnGhosts(vec(18,15),"pink")
+		self.spawnGhosts(vec(11,11),"yellow")
+		self.spawnGhosts(vec(11,17),"red")
+		self.spawnGhosts(vec(15,11),"blue")
+		self.spawnGhosts(vec(15,17),"pink")
 
 
 		self.load()
@@ -170,13 +170,14 @@ class App:
 
 		self.player.update()
 
-		self.player.wallCollide(self.walls)
+		self.player.wallCollide()
 
 
 		for ghost in self.ghosts:
-			ghost.ghostCollide()
-			ghost.wallCollide(self.walls)
 			ghost.update()
+			#ghost.ghostCollide()
+			ghost.wallCollide()
+			
 
 	def game_draw(self):
 		self.screen.fill(black)

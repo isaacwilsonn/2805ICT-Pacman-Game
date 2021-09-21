@@ -10,7 +10,6 @@ class Wall:
 		self.wType = wType
 
 		self.imgPath = "assets/sprites/maze/" + self.wType +".png"
-		print(self.imgPath)
 		self.img = pygame.image.load(self.imgPath).convert()
 		self.rect = self.rect=pygame.Rect(self.posPx.x,self.posPx.y,self.app.cellWidth,self.app.cellHeight)
 
