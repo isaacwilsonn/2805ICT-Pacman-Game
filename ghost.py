@@ -16,6 +16,9 @@ class Ghost:
 		self.spriteSheet = spriteSheet
 		self.img = self.getSprite()
 		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
+		self.rect=pygame.Rect(0,0,self.app.cellWidth,self.app.cellHeight)
+		self.rect.x = self.posGrid[0]
+		self.rect.y = self.posGrid[1]
 
 	def update(self):
 		self.posPx += self.direction
@@ -27,6 +30,8 @@ class Ghost:
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
 		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
+		self.rect.x = self.posPx.x
+		self.rect.y = self.posPx.y
 
 	def draw(self):
 		#pygame.draw.circle(self.app.screen, white, (int(self.posPx.x), int(self.posPx.y)), self.app.cellWidth//2-2)
@@ -88,3 +93,37 @@ class Ghost:
 			if self.direction == vec(0,1) or self.direction == (0,-1):
 				if self.nextDirection != None:
 					self.direction = self.nextDirection
+
+	def wallCollide(self, walls):
+		for w in walls:
+			if self.rect.colliderect(w.rect):
+				if self.direction == vec(0,1):
+					self.direction = vec(0,-1)
+					return
+				elif self.direction == vec(0,-1):
+					self.direction = vec(0,1)
+					return
+				elif self.direction == vec(1,0):
+					self.direction = vec(-1,0)
+					return
+				elif self.direction == vec(-1,0):
+					self.direction = vec(1,0)
+					return
+
+	def ghostCollide(self):
+		for g in self.app.ghosts:
+			if self == g:
+				continue
+			if self.rect.colliderect(g.rect):
+				if self.direction == vec(0,1):
+					self.direction = vec(0,-1)
+					return
+				elif self.direction == vec(0,-1):
+					self.direction = vec(0,1)
+					return
+				elif self.direction == vec(1,0):
+					self.direction = vec(-1,0)
+					return
+				elif self.direction == vec(-1,0):
+					self.direction = vec(1,0)
+					return

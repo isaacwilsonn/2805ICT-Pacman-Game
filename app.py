@@ -1,6 +1,7 @@
 import pygame
 import sys
 from player import *
+from maze_walls import *
 from settings import *
 from sprites import Spritesheet
 from ghost import *
@@ -19,14 +20,19 @@ class App:
 		self.cellWidth = mWIDTH//28
 		self.cellHeight = mHEIGHT//30
 		self.spriteSheet = Spritesheet()
+		self.canWallCollide = True
+
 		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 		self.ghosts = []
+		self.walls = []
+		self.mWalls = []
 
 		#spawn ghosts hardcode
-		self.spawnGhosts(vec(11,13),"yellow")
-		self.spawnGhosts(vec(11,15),"red")
-		self.spawnGhosts(vec(16,13),"blue")
-		self.spawnGhosts(vec(16,15),"pink")
+		self.spawnGhosts(vec(9,13),"yellow")
+		self.spawnGhosts(vec(9,15),"red")
+		self.spawnGhosts(vec(18,13),"blue")
+		self.spawnGhosts(vec(18,15),"pink")
+
 
 		self.load()
 
@@ -45,7 +51,7 @@ class App:
 				self.game_update()
 				self.game_draw()
 			else:
-				self.running = False
+				self.running = True
 			self.clock.tick(FPS)
 		pygame.quit()
 		sys.exit()
@@ -70,6 +76,10 @@ class App:
 
 	def spawnGhosts(self, pos, color = "red"):
 		self.ghosts.append(Ghost(self, pos, self.spriteSheet, color))
+
+	def createWalls(self):
+		self.createDefaultWalls()
+		self.mirrorMaze()
 
 	#draw grid for debugging 
 	def drawGrid(self):
@@ -97,6 +107,8 @@ class App:
 						self.sel = "exit"
 				if event.key==pygame.K_RETURN:
 					if self.sel =="play":
+						#create walls
+						self.createWalls()
 						self.state = 'playing'
 					elif self.sel == "config":
 						print("config")
@@ -155,14 +167,22 @@ class App:
 					self.player.move(vec(1,0))
 
 	def game_update(self):
+
 		self.player.update()
 
+		self.player.wallCollide(self.walls)
+
+
 		for ghost in self.ghosts:
+			ghost.ghostCollide()
+			ghost.wallCollide(self.walls)
 			ghost.update()
 
 	def game_draw(self):
 		self.screen.fill(black)
-		self.screen.blit(self.mazeBG, (BORDER_BUFFER//2,BORDER_BUFFER//2))
+		#self.screen.blit(self.mazeBG, (BORDER_BUFFER//2,BORDER_BUFFER//2))
+
+		#draw grid for debug purposes
 		#self.drawGrid()
 
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
@@ -171,4 +191,45 @@ class App:
 		for ghost in self.ghosts:
 			ghost.draw()
 
+		for wall in self.walls:
+			wall.draw()
+
 		pygame.display.update()
+
+
+############################## MAZE CREATION
+
+	def createDefaultWalls(self):
+
+		x = 0
+		y = 0
+		with open('def_maze_layout.txt','r') as file:
+			for line in file:
+				x = 0
+				for word in line.split():
+					if word != 'BLANK':
+						self.walls.append(Wall(self,vec(x,y),word))
+					x+=1
+				y+=1
+
+
+
+	def mirrorMaze(self):
+		print("len walls: ", len(self.walls))
+		for w in self.walls:
+			x = 27-w.posGrid[0]
+			y = w.posGrid[1]
+			wType = w.wType
+
+			if wType == 'BOT_LEFT':
+				wType = 'BOT_RIGHT'
+			elif wType == 'BOT_RIGHT':
+				wType = 'BOT_LEFT'
+			elif wType == 'TOP_LEFT':
+				wType = 'TOP_RIGHT'
+			elif wType == 'TOP_RIGHT':
+				wType = 'TOP_LEFT'
+			
+			self.mWalls.append(Wall(self,vec(x,y),wType))
+		for w in self.mWalls:
+			self.walls.append(w)
