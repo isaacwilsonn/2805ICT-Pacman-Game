@@ -23,13 +23,14 @@ class App:
 		self.canWallCollide = True
 
 		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
-		self.ghosts = []
+		self.sGhosts = []
+		self.dGhosts = []
 		self.walls = []
 		self.mWalls = []
 
 		#spawn ghosts hardcode
-		self.spawnGhosts(vec(11,11),"yellow")
-		self.spawnGhosts(vec(11,17),"red")
+		self.spawnGhosts(vec(11,11),"yellow", "smart")
+		self.spawnGhosts(vec(11,17),"red", "smart")
 		self.spawnGhosts(vec(15,11),"blue")
 		self.spawnGhosts(vec(15,17),"pink")
 
@@ -74,8 +75,11 @@ class App:
 		self.title = pygame.image.load('assets/img/pacman-title.png')
 		self.icon = pygame.image.load('assets/img/pacman-icon.png')
 
-	def spawnGhosts(self, pos, color = "red"):
-		self.ghosts.append(Ghost(self, pos, self.spriteSheet, color))
+	def spawnGhosts(self, pos, color = "red", ai="dumb"):
+		if ai == "smart":
+			self.sGhosts.append(sGhost(self, pos, self.spriteSheet, color))
+		else:
+			self.dGhosts.append(dGhost(self, pos, self.spriteSheet, color))
 
 	def createWalls(self):
 		self.createDefaultWalls()
@@ -172,11 +176,17 @@ class App:
 
 		self.player.wallCollide()
 
-
-		for ghost in self.ghosts:
+		#smart ghosts
+		for ghost in self.sGhosts:
 			ghost.update()
 			#ghost.ghostCollide()
 			ghost.wallCollide()
+
+		#dumb ghosts
+		for ghost in self.dGhosts:
+			ghost.update()
+
+
 			
 
 	def game_draw(self):
@@ -189,7 +199,9 @@ class App:
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
 		self.player.draw()
-		for ghost in self.ghosts:
+		for ghost in self.sGhosts:
+			ghost.draw()
+		for ghost in self.dGhosts:
 			ghost.draw()
 
 		for wall in self.walls:
