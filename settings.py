@@ -21,6 +21,6 @@ MENU_FONT_LARGE = 35
 MENU_FONT_SMALL = 17
 
 # player settings
-START_POS_PLAYER = vec(1,1)
+START_POS_PLAYER = vec(25,1)
 
 # mob settings

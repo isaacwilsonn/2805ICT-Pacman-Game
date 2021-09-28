@@ -1,90 +1,75 @@
-import pygame
-import math
-from settings import *
+from ghost_template import *
 
-vec = pygame.math.Vector2
 
-class Ghost:
-	def __init__(self, app, pos, spriteSheet, color = "red"):
-		self.app = app
-		self.posGrid = pos
-		self.posPx = self.get_posPx()
-		self.color = color
-		self.direction = vec(1,0)
-		self.nextDirection = None
+#########################	Dumb Ghost 	#########################
 
-		self.spriteSheet = spriteSheet
-		self.img = self.getSprite()
-		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
-
-	def update(self):
-		self.posPx += self.direction
-		self.canChangeDirection()
-		self.move()
-		self.img = self.getSprite()
-		self.img = pygame.transform.smoothscale(self.img, (self.app.cellWidth-1, self.app.cellHeight-1))
-
-		#grid position
-		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
-		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
-
-	def draw(self):
-		#pygame.draw.circle(self.app.screen, white, (int(self.posPx.x), int(self.posPx.y)), self.app.cellWidth//2-2)
-		self.app.screen.blit(self.img, (int(self.posPx.x),int(self.posPx.y)))
-
-	######################################################
-
-	def get_posPx(self):
-		return vec(self.posGrid.x * self.app.cellWidth + BORDER_BUFFER//2, self.posGrid.y * self.app.cellHeight + BORDER_BUFFER//2)
+class dGhost(Ghost_Template):
 
 	def move(self):
-		#self.nextDirection = vec(0,1)
-		u = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y -1 - self.app.player.posGrid.y,2)))
-		d = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y +1 - self.app.player.posGrid.y,2)))
-		l = math.sqrt(abs(pow(self.posGrid.x-1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
-		r = math.sqrt(abs(pow(self.posGrid.x+1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
+		dirs = self.getAvailDirs(self.direction)
+		if dirs:
+			self.direction = random.choice(dirs)
 
-		#get index of shortest path
-		dirs = (u,d,l,r)
-		best = dirs.index(min(dirs))
+	def update(self):
+		self.move()
+		self.update_essential()
 
-		if best == 0:
-			self.nextDirection = vec(0,-1)
-		elif best == 1:
-			self.nextDirection = vec(0,1)
-		elif best == 2:
-			self.nextDirection = vec(-1,0)
-		else:
-			self.nextDirection = vec(1,0)
 
-	def getSprite(self):
-		#used to offset sprite sheet selection -> depending on direction
-		x = 0
-		if self.direction == vec(1,0):
-			x=0
-		elif self.direction == vec(-1,0):
-			x=2
-		elif self.direction == vec(0,-1):
-			x=4
-		else:
-			x=6
 
-		if self.color == "yellow":
-			return self.spriteSheet.grabImage(0+x, 7, 16, 16)	#yellow
-		elif self.color == "pink":
-			return self.spriteSheet.grabImage(0+x, 5, 16, 16)	#pink
-		elif self.color == "blue":
-			return self.spriteSheet.grabImage(0+x, 6, 16, 16)	#blue
-		return self.spriteSheet.grabImage(0+x, 4, 16, 16)		#red
 
-	def canChangeDirection(self, dir = 0):
-		#Check if inline with X grid
-		if int(self.posPx.x-BORDER_BUFFER//2) % self.app.cellWidth == 0:
-			if self.direction == vec(1,0) or self.direction == (-1,0):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
-		#Check if inline with Y grid
-		if int(self.posPx.y-BORDER_BUFFER//2) % self.app.cellHeight == 0:
-			if self.direction == vec(0,1) or self.direction == (0,-1):
-				if self.nextDirection != None:
-					self.direction = self.nextDirection
+#########################	New Smart Ghost 	#########################
+
+class sGhost(Ghost_Template):
+	def move(self):
+		dirs = []
+		u,d,l,r = INF,INF,INF,INF
+
+
+		dirs = self.getAvailDirs(self.direction)
+
+		if dirs:
+			#dumb move
+			if self.smartMoveCount >= 5:
+				self.direction = random.choice(dirs)
+				self.dumbMoveCount += 1
+				if self.dumbMoveCount >= 2:
+					self.smartMoveCount = 0
+			#smart move
+			else:
+				self.dumbMoveCount = 0
+				for x in dirs:
+					#up
+					if x == vec(0,-1):
+						#u = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y -1 - self.app.player.posGrid.y,2)))
+						u = abs(self.posGrid.x - self.app.player.posGrid.x) + abs((self.posGrid.y-1) - self.app.player.posGrid.y)
+					#down
+					elif x == vec(0,1):
+						#d = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y +1 - self.app.player.posGrid.y,2)))
+						d = abs(self.posGrid.x - self.app.player.posGrid.x) + abs((self.posGrid.y+1) - self.app.player.posGrid.y)
+						#left
+					elif x == vec(-1,0):
+						#l = math.sqrt(abs(pow(self.posGrid.x-1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
+						l = abs((self.posGrid.x-1) - self.app.player.posGrid.x) + abs(self.posGrid.y - self.app.player.posGrid.y)
+						#right
+					elif x == vec(1,0):
+						#r = math.sqrt(abs(pow(self.posGrid.x+1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
+						r = abs((self.posGrid.x+1) - self.app.player.posGrid.x) + abs(self.posGrid.y - self.app.player.posGrid.y)
+
+				distances = (u,d,l,r)
+				best = distances.index(min(distances))
+
+				if best == 0:
+					self.direction = vec(0,-1)
+				elif best == 1:
+					self.direction = vec(0,1)
+				elif best == 2:
+					self.direction = vec(-1,0)
+				else:
+					self.direction = vec(1,0)
+				self.smartMoveCount += 1	
+
+		
+
+	def update(self):
+		self.move()
+		self.update_essential()
