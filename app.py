@@ -30,7 +30,7 @@ class App:
 
 		#spawn ghosts hardcode
 		self.spawnGhosts(vec(11,11),"yellow", "smart")
-		self.spawnGhosts(vec(11,17),"red", "smart")
+		self.spawnGhosts(vec(26,29),"red", "smart")
 		self.spawnGhosts(vec(15,11),"blue")
 		self.spawnGhosts(vec(15,17),"pink")
 
@@ -180,7 +180,7 @@ class App:
 		for ghost in self.sGhosts:
 			ghost.update()
 			#ghost.ghostCollide()
-			ghost.wallCollide()
+			#ghost.wallCollide()
 
 		#dumb ghosts
 		for ghost in self.dGhosts:
@@ -191,7 +191,6 @@ class App:
 
 	def game_draw(self):
 		self.screen.fill(black)
-		#self.screen.blit(self.mazeBG, (BORDER_BUFFER//2,BORDER_BUFFER//2))
 
 		#draw grid for debug purposes
 		#self.drawGrid()

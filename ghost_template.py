@@ -15,6 +15,8 @@ class Ghost_Template:
 		self.direction = vec(1,0)
 		self.nextDirection = None
 		self.spriteSheet = spriteSheet
+		self.smartMoveCount = 0
+		self.dumbMoveCount = 0
 
 		self.imgArr = []
 		self.getSprite()
@@ -94,3 +96,33 @@ class Ghost_Template:
 			if rec.colliderect(w.rect):
 				return True
 		return False
+
+	def getAvailDirs(self, curDir):
+		dirs = []
+
+		#Current direction is up or down
+		if curDir == vec(0,-1) or curDir == vec(0,1):
+			#if curDir is up and no collision ahead -> append curdir
+			if curDir == vec(0,-1) and not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+				dirs.append(curDir)
+			#if curDir is down and no collision ahead -> append curdir
+			elif curDir == vec(0,1) and not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+				dirs.append(curDir)
+			if not self.checkCollide(self.posPx.x - self.app.cellWidth,self.posPx.y):
+				dirs.append(vec(-1,0))
+			if not self.checkCollide(self.posPx.x + self.app.cellWidth,self.posPx.y):
+				dirs.append(vec(1,0))
+		#left
+		elif curDir == vec(-1,0) or curDir == vec(1,0):
+			#if curDir is left and no collision ahead -> append curdir
+			if curDir == vec(-1,0) and not self.checkCollide(self.posPx.x - self.app.cellWidth,self.posPx.y):
+				dirs.append(curDir)
+			#if curDir is right and no collision ahead -> append curdir
+			elif curDir == vec(1,0) and not self.checkCollide(self.posPx.x + self.app.cellWidth, self.posPx.y):
+				dirs.append(curDir)
+
+			if not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+				dirs.append(vec(0,-1))
+			if not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+				dirs.append(vec(0,1))
+		return dirs
