@@ -7,10 +7,11 @@ class Player:
 		self.app = app
 		self.posGrid = pos
 		self.posPx = self.get_posPx()
-		self.direction = vec(1,0)
+		self.direction = vec(0,0)
 		self.nextDirection = None
 		self.imgArr= []
-		#self.img = None
+		self.lives = 3
+
 
 		#sort sprites into list
 		self.spriteSheet = spriteSheet
@@ -102,10 +103,12 @@ class Player:
 					self.direction = vec(0,0)
 					self.posPx.x = w.rect.right
 
-	def checkCollide(self,x,y):
-		rec = pygame.Rect(x,y,self.app.cellWidth,self.app.cellHeight)
-		for w in self.app.walls:
-			if rec.colliderect(w.rect):
-				return True
-		return False
+	def checkCollide(self,x,y, obj='wall'):
+		if obj == 'wall':
+			rec = pygame.Rect(x,y,self.app.cellWidth,self.app.cellHeight)
+			for w in self.app.walls:
+				if rec.colliderect(w.rect):
+					return True
+			return False
+
 					

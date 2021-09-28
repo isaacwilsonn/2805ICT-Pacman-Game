@@ -25,7 +25,7 @@ class Ghost_Template:
 
 	def update_essential(self):
 		self.posPx += self.direction
-
+		self.pacmanCollision()
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
 		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
@@ -126,3 +126,10 @@ class Ghost_Template:
 			if not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
 				dirs.append(vec(0,1))
 		return dirs
+
+	def pacmanCollision(self):
+		if self.rect.colliderect(self.app.player.rect):
+			self.app.player.posPx = vec(INF,INF)
+			self.app.player.direction = vec(0,0)
+			self.app.player.nextDirection = vec(0,0)
+			self.app.player.lives -= 1

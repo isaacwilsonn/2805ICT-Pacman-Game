@@ -179,8 +179,6 @@ class App:
 		#smart ghosts
 		for ghost in self.sGhosts:
 			ghost.update()
-			#ghost.ghostCollide()
-			#ghost.wallCollide()
 
 		#dumb ghosts
 		for ghost in self.dGhosts:
@@ -194,10 +192,10 @@ class App:
 
 		#draw grid for debug purposes
 		#self.drawGrid()
-
+		
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
-		self.drawText("Lives: 3", self.screen, [WIDTH-500, 2.5], MENU_FONT, 15, white)
+		self.drawText("Lives: " + str(self.player.lives), self.screen, [WIDTH//2-50, HEIGHT-30], MENU_FONT, 15, white)
 		
 		#add lives to game screen
 		self.player.draw()
