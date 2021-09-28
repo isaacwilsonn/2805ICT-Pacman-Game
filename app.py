@@ -197,6 +197,9 @@ class App:
 
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
+		self.drawText("Lives: 3", self.screen, [WIDTH-500, 2.5], MENU_FONT, 15, white)
+		
+		#add lives to game screen
 		self.player.draw()
 		for ghost in self.sGhosts:
 			ghost.draw()
