@@ -12,7 +12,8 @@ class Ghost_Template:
 		self.posGrid = pos
 		self.posPx = self.get_posPx()
 		self.color = color
-		self.direction = vec(1,0)
+		self.speed = 1.25
+		self.direction = vec(self.speed,0)
 		self.nextDirection = None
 		self.spriteSheet = spriteSheet
 		self.smartMoveCount = 0
@@ -32,13 +33,13 @@ class Ghost_Template:
 		self.rect.x = self.posPx.x
 		self.rect.y = self.posPx.y
 
-		if self.direction == (0,1):	#down
+		if self.direction == (0,self.speed):	#down
 			self.img = self.imgArr[3]
-		elif self.direction == (0,-1):	#up
+		elif self.direction == (0,-self.speed):	#up
 			self.img = self.imgArr[2]
-		elif self.direction == (-1,0):	#left
+		elif self.direction == (-self.speed,0):	#left
 			self.img = self.imgArr[1]
-		elif self.direction == (1,0):	#right
+		elif self.direction == (self.speed,0):	#right
 			self.img = self.imgArr[0]
 
 	def draw(self):
@@ -101,35 +102,33 @@ class Ghost_Template:
 		dirs = []
 
 		#Current direction is up or down
-		if curDir == vec(0,-1) or curDir == vec(0,1):
+		if curDir == vec(0,-self.speed) or curDir == vec(0,self.speed):
 			#if curDir is up and no collision ahead -> append curdir
-			if curDir == vec(0,-1) and not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
+			if curDir == vec(0,-self.speed) and not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
 				dirs.append(curDir)
 			#if curDir is down and no collision ahead -> append curdir
-			elif curDir == vec(0,1) and not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
+			elif curDir == vec(0,self.speed) and not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
 				dirs.append(curDir)
 			if not self.checkCollide(self.posPx.x - self.app.cellWidth,self.posPx.y):
-				dirs.append(vec(-1,0))
+				dirs.append(vec(-self.speed,0))
 			if not self.checkCollide(self.posPx.x + self.app.cellWidth,self.posPx.y):
-				dirs.append(vec(1,0))
+				dirs.append(vec(self.speed,0))
 		#left
-		elif curDir == vec(-1,0) or curDir == vec(1,0):
+		elif curDir == vec(-self.speed,0) or curDir == vec(self.speed,0):
 			#if curDir is left and no collision ahead -> append curdir
-			if curDir == vec(-1,0) and not self.checkCollide(self.posPx.x - self.app.cellWidth,self.posPx.y):
+			if curDir == vec(-self.speed,0) and not self.checkCollide(self.posPx.x - self.app.cellWidth,self.posPx.y):
 				dirs.append(curDir)
 			#if curDir is right and no collision ahead -> append curdir
-			elif curDir == vec(1,0) and not self.checkCollide(self.posPx.x + self.app.cellWidth, self.posPx.y):
+			elif curDir == vec(self.speed,0) and not self.checkCollide(self.posPx.x + self.app.cellWidth, self.posPx.y):
 				dirs.append(curDir)
 
 			if not self.checkCollide(self.posPx.x,self.posPx.y - self.app.cellHeight):
-				dirs.append(vec(0,-1))
+				dirs.append(vec(0,-self.speed))
 			if not self.checkCollide(self.posPx.x,self.posPx.y + self.app.cellHeight):
-				dirs.append(vec(0,1))
+				dirs.append(vec(0,self.speed))
 		return dirs
 
 	def pacmanCollision(self):
-		if self.rect.colliderect(self.app.player.rect):
-			self.app.player.posPx = vec(INF,INF)
-			self.app.player.direction = vec(0,0)
-			self.app.player.nextDirection = vec(0,0)
-			self.app.player.lives -= 1
+		if self.rect.colliderect(self.app.player.rect) and not self.app.player.deadAnimation:
+			self.app.resetGhosts()
+			self.app.player.die()

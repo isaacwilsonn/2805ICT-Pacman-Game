@@ -39,19 +39,19 @@ class sGhost(Ghost_Template):
 				self.dumbMoveCount = 0
 				for x in dirs:
 					#up
-					if x == vec(0,-1):
+					if x == vec(0,-self.speed):
 						#u = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y -1 - self.app.player.posGrid.y,2)))
 						u = abs(self.posGrid.x - self.app.player.posGrid.x) + abs((self.posGrid.y-1) - self.app.player.posGrid.y)
 					#down
-					elif x == vec(0,1):
+					elif x == vec(0,self.speed):
 						#d = math.sqrt(abs(pow(self.posGrid.x - self.app.player.posGrid.x,2) + pow(self.posGrid.y +1 - self.app.player.posGrid.y,2)))
 						d = abs(self.posGrid.x - self.app.player.posGrid.x) + abs((self.posGrid.y+1) - self.app.player.posGrid.y)
 						#left
-					elif x == vec(-1,0):
+					elif x == vec(-self.speed,0):
 						#l = math.sqrt(abs(pow(self.posGrid.x-1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
 						l = abs((self.posGrid.x-1) - self.app.player.posGrid.x) + abs(self.posGrid.y - self.app.player.posGrid.y)
 						#right
-					elif x == vec(1,0):
+					elif x == vec(self.speed,0):
 						#r = math.sqrt(abs(pow(self.posGrid.x+1 - self.app.player.posGrid.x,2) + pow(self.posGrid.y - self.app.player.posGrid.y,2)))
 						r = abs((self.posGrid.x+1) - self.app.player.posGrid.x) + abs(self.posGrid.y - self.app.player.posGrid.y)
 
@@ -59,13 +59,13 @@ class sGhost(Ghost_Template):
 				best = distances.index(min(distances))
 
 				if best == 0:
-					self.direction = vec(0,-1)
+					self.direction = vec(0,-self.speed)
 				elif best == 1:
-					self.direction = vec(0,1)
+					self.direction = vec(0,self.speed)
 				elif best == 2:
-					self.direction = vec(-1,0)
+					self.direction = vec(-self.speed,0)
 				else:
-					self.direction = vec(1,0)
+					self.direction = vec(self.speed,0)
 				self.smartMoveCount += 1	
 
 		

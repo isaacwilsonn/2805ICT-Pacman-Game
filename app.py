@@ -34,6 +34,14 @@ class App:
 		self.spawnGhosts(vec(15,11),"blue")
 		self.spawnGhosts(vec(15,17),"pink")
 
+		#sounds
+		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
+		self.snd_powerPellet = pygame.mixer.Sound('assets/sound_effects/pacman_powerpellet.mp3')
+		self.snd_chomp = pygame.mixer.Sound('assets/sound_effects/pacman_chomp.wav')
+		self.snd_eatGhost = pygame.mixer.Sound('assets/sound_effects/pacman_eatghost.wav')
+		self.snd_pacmanDeath = pygame.mixer.Sound('assets/sound_effects/pacman_death.wav')
+		self.snd_ghostSiren = pygame.mixer.Sound('assets/sound_effects/pacman_ghostSiren.mp3')
+
 
 		self.load()
 
@@ -42,6 +50,7 @@ class App:
 		pygame.display.set_icon(self.icon)
 
 	def run(self):
+		self.snd_mainMenu.play(0,0)
 		while self.running:
 			if self.state == 'mMenu':
 				self.mMenu_events()
@@ -112,6 +121,7 @@ class App:
 				if event.key==pygame.K_RETURN:
 					if self.sel =="play":
 						#create walls
+						self.snd_mainMenu.stop()
 						self.createWalls()
 						self.state = 'playing'
 					elif self.sel == "config":
@@ -162,13 +172,13 @@ class App:
 				self.running = False
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_UP:
-					self.player.move(vec(0,-1))
+					self.player.move(vec(0,-self.player.speed))
 				if event.key == pygame.K_DOWN:
-					self.player.move(vec(0,1))
+					self.player.move(vec(0,self.player.speed))
 				if event.key == pygame.K_LEFT:
-					self.player.move(vec(-1,0))
+					self.player.move(vec(-self.player.speed,0))
 				if event.key == pygame.K_RIGHT:
-					self.player.move(vec(1,0))
+					self.player.move(vec(self.player.speed,0))
 
 	def game_update(self):
 
@@ -195,10 +205,12 @@ class App:
 		
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
+		#add lives to game screen
 		self.drawText("Lives: " + str(self.player.lives), self.screen, [WIDTH//2-50, HEIGHT-30], MENU_FONT, 15, white)
 		
-		#add lives to game screen
+		
 		self.player.draw()
+
 		for ghost in self.sGhosts:
 			ghost.draw()
 		for ghost in self.dGhosts:
@@ -246,3 +258,20 @@ class App:
 			self.mWalls.append(Wall(self,vec(x,y),wType))
 		for w in self.mWalls:
 			self.walls.append(w)
+
+	def resetGhosts(self):
+		for g in self.dGhosts:
+			if g.color == 'blue':
+				g.posGrid = vec(12,14)
+				g.posPx = g.get_posPx()
+			if g.color == 'pink':
+				g.posGrid = vec(15,14)
+				g.posPx = g.get_posPx()
+
+		for g in self.sGhosts:
+			if g.color == 'red':
+				g.posGrid = vec(14,11)
+				g.posPx = g.get_posPx()
+			if g.color == 'yellow':
+				g.posGrid = vec(13,14)
+				g.posPx = g.get_posPx()
