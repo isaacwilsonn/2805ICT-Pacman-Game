@@ -5,6 +5,7 @@ from maze_walls import *
 from settings import *
 from sprites import Spritesheet
 from ghost import *
+from food import *
 
 pygame.init()
 vec = pygame.math.Vector2
@@ -29,12 +30,15 @@ class App:
 		self.dGhosts = []
 		self.walls = []
 		self.mWalls = []
+		self.food = []
 
 		#spawn ghosts hardcode
 		self.spawnGhosts(vec(11,11),"yellow", "smart")
 		self.spawnGhosts(vec(26,29),"red", "smart")
 		self.spawnGhosts(vec(15,11),"blue")
 		self.spawnGhosts(vec(15,17),"pink")
+
+		self.spawnFood();
 
 		#sounds
 		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
@@ -91,6 +95,10 @@ class App:
 			self.sGhosts.append(sGhost(self, pos, self.spriteSheet, color))
 		else:
 			self.dGhosts.append(dGhost(self, pos, self.spriteSheet, color))
+
+	def spawnFood(self):
+		pos = vec(1,1)
+		self.food.append(food(self, pos))
 
 	def createWalls(self):
 		self.createDefaultWalls()
@@ -232,6 +240,10 @@ class App:
 		for ghost in self.dGhosts:
 			ghost.update()
 
+		#update food (check collision)
+		for food in self.food:
+			food.update()
+
 
 			
 
@@ -259,6 +271,10 @@ class App:
 		else:
 			for wall in self.walls:
 				wall.draw()
+
+		# draw food
+		for food in self.food:
+			food.draw()
 
 		pygame.display.update()
 
