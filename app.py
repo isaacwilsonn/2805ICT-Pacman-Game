@@ -24,6 +24,7 @@ class App:
 		self.canWallCollide = True
 		self.randomMaze = False
 		self.config = False
+		self.score = 0
 
 		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 		self.sGhosts = []
@@ -31,14 +32,13 @@ class App:
 		self.walls = []
 		self.mWalls = []
 		self.food = []
+		self.mfood = []
 
 		#spawn ghosts hardcode
 		self.spawnGhosts(vec(11,11),"yellow", "smart")
 		self.spawnGhosts(vec(26,29),"red", "smart")
 		self.spawnGhosts(vec(15,11),"blue")
 		self.spawnGhosts(vec(15,17),"pink")
-
-		self.spawnFood();
 
 		#sounds
 		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
@@ -96,14 +96,16 @@ class App:
 		else:
 			self.dGhosts.append(dGhost(self, pos, self.spriteSheet, color))
 
-	def spawnFood(self):
-		pos = vec(1,1)
-		self.food.append(food(self, pos))
 
 	def createWalls(self):
 		self.createDefaultWalls()
 		self.mirrorMaze()
 
+	def spawnFood(self):
+		self.spawnPowerPellets()
+		self.spawnPellet()
+		self.mirrorFood()
+	
 	#draw grid for debugging 
 	def drawGrid(self):
 		for i in range(WIDTH//self.cellWidth):
@@ -134,6 +136,7 @@ class App:
 							#create walls
 							self.snd_mainMenu.stop()
 							self.createWalls()
+							self.spawnFood()
 							self.state = 'playing'
 						elif self.sel == "config":
 							self.config = True
@@ -227,7 +230,8 @@ class App:
 					self.player.move(vec(self.player.speed,0))
 
 	def game_update(self):
-
+		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
+		
 		self.player.update()
 
 		self.player.wallCollide()
@@ -239,13 +243,11 @@ class App:
 		#dumb ghosts
 		for ghost in self.dGhosts:
 			ghost.update()
-
+		
 		#update food (check collision)
 		for food in self.food:
 			food.update()
 
-
-			
 
 	def game_draw(self):
 		self.screen.fill(black)
@@ -253,9 +255,8 @@ class App:
 		#draw grid for debug purposes
 		#self.drawGrid()
 		
-		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
+		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
-		#add lives to game screen
 		self.drawText("Lives: " + str(self.player.lives), self.screen, [WIDTH//2-50, HEIGHT-30], MENU_FONT, 15, white)
 		
 		
@@ -274,7 +275,7 @@ class App:
 
 		# draw food
 		for food in self.food:
-			food.draw()
+				food.draw(food.foodType)
 
 		pygame.display.update()
 
@@ -316,6 +317,47 @@ class App:
 		for w in self.mWalls:
 			self.walls.append(w)
 
+	def spawnPowerPellets(self):
+		'''only spawn the power pellets in here.'''
+		#how to approach this when doing random generation?
+		#get a random x,y coord. check if position in walls list, check if positon is blank, put a food object?
+		#else new random number?
+		self.food.append(Food(self, vec(1, 5), True)) #top left
+		self.food.append(Food(self, vec(1, 23), True)) #bottom left
+
+	def spawnPellet(self):
+		dontdraw = []
+		for i in range(5):
+			for j in range(10, 13):
+				dontdraw.append([i, j])
+			for k in range(16, 19):
+				dontdraw.append([i, k])
+
+		with open('def_maze_layout.txt','r') as file:
+			y = 0
+			for line in file:
+				x = 0
+				for word in line.split():
+					if word == 'BLANK': 
+						if [x, y] not in dontdraw:
+							self.food.append(Food(self, vec(x, y), False))
+					x+=1
+				y+=1
+		
+		#potentially use something like this to check for power pellets.
+		#for food in self.food:
+		#	if food.posGrid == [1, 5]:
+		#		print("in")
+
+	def mirrorFood(self):
+		for food in self.food:
+			x = 27-food.posGrid[0]
+			y = food.posGrid[1]
+			self.mfood.append(Food(self,vec(x,y),food.foodType))
+		
+		for food in self.mfood:
+			self.food.append(food)
+	
 	def resetGhosts(self):
 		for g in self.dGhosts:
 			if g.color == 'blue':

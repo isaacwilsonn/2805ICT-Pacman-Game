@@ -6,21 +6,23 @@ from settings import *
 INF = 9999999
 vec = pygame.math.Vector2
 
-class food:
-	def __init__(self, app, pos):
+class Food:
+	def __init__(self, app, pos, foodType):
 		self.app = app
 		self.posGrid = pos
 		self.posPx = self.get_posPx()
-
+		self.foodType = foodType
 		self.rect=pygame.Rect(self.posGrid[0],self.posGrid[1],self.app.cellWidth,self.app.cellHeight)
 
 	def update(self):
 		self.pacmanCollision()
 
-	def draw(self):
+	def draw(self, powerpellet = False):
 		#self.app.screen.blit(self.img, (int(self.posPx.x),int(self.posPx.y)))
-		pygame.draw.circle(self.app.screen, yellow, (self.posPx.x+self.app.cellWidth//2,self.posPx.y+self.app.cellHeight//2), 5)
-
+		if powerpellet:
+			pygame.draw.circle(self.app.screen, yellow, (self.posPx.x+self.app.cellWidth//2,self.posPx.y+self.app.cellHeight//2), 5)
+		else:
+			pygame.draw.circle(self.app.screen, white, (self.posPx.x+self.app.cellWidth//2,self.posPx.y+self.app.cellHeight//2), 3)
 	######################################################
 
 	def get_posPx(self):
