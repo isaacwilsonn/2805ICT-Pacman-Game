@@ -17,7 +17,7 @@ class Player:
 		self.deadAnimation = False
 		self.speed = 1.25
 		self.imgIndex = 0
-
+		self.score = 0
 		#sort sprites into list
 		self.spriteSheet = spriteSheet
 		#left
@@ -103,6 +103,7 @@ class Player:
 		else:
 			if self.imgIndex >= 12:
 				self.imgIndex = 0
+		self.eatFood()
 
 	def draw(self):
 		self.drawPlayer()
@@ -175,6 +176,19 @@ class Player:
 		self.deadAnimation = True
 		
 		
-		
-
-					
+	def eatFood(self):
+		'''
+		for i in range (len(self.app.food)-2):
+			if self.posGrid == self.app.food[i].posGrid:
+				self.app.food.pop(i);
+				self.app.score+=10
+		'''
+		for food in self.app.food:
+			if self.posGrid == food.posGrid:
+				if food.foodType == True:
+					self.app.food.pop(self.app.food.index(food))
+					self.app.score += 100
+					#need to be able to transform pacman here and able to eat ghosts
+				else:
+					self.app.food.pop(self.app.food.index(food))
+					self.app.score += 10
