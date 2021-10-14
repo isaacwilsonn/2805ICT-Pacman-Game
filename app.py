@@ -107,9 +107,9 @@ class App:
 	#draw grid for debugging 
 	def drawGrid(self):
 		for i in range(WIDTH//self.cellWidth):
-			pygame.draw.line(self.mazeBG, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
+			pygame.draw.line(self.screen, gray, (i*self.cellWidth,0),(i*self.cellWidth,HEIGHT))
 		for i in range(HEIGHT//self.cellHeight):
-			pygame.draw.line(self.mazeBG, gray, (0, i*self.cellHeight),(WIDTH, i*self.cellHeight))
+			pygame.draw.line(self.screen, gray, (0, i*self.cellHeight),(WIDTH, i*self.cellHeight))
 
 	#########################	Main Menu State 	#########################
 
@@ -249,9 +249,6 @@ class App:
 
 	def game_draw(self):
 		self.screen.fill(black)
-
-		#draw grid for debug purposes
-		#self.drawGrid()
 		
 		self.drawText('SCORE: 0', self.screen, [10,2.5], MENU_FONT, 15, white)
 		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
@@ -271,6 +268,9 @@ class App:
 		else:
 			for wall in self.walls:
 				wall.draw()
+
+		#draw grid for debug purposes
+		self.drawGrid()
 
 		# draw food
 		for food in self.food:
