@@ -35,18 +35,18 @@ class App:
 		self.mfood = []
 
 		#spawn ghosts hardcode
-		self.spawnGhosts(vec(11,15),"yellow", "smart")
-		self.spawnGhosts(vec(14,14),"red", "smart")
-		self.spawnGhosts(vec(13,14),"blue")
-		self.spawnGhosts(vec(15,14),"pink")
+		self.spawnGhosts(vec(11,11),"yellow", "smart")
+		self.spawnGhosts(vec(14,11),"red", "smart")
+		self.spawnGhosts(vec(13,18),"blue")
+		self.spawnGhosts(vec(15,18),"pink")
 
 		#sounds
 		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
-		self.snd_powerPellet = pygame.mixer.Sound('assets/sound_effects/pacman_powerpellet.mp3')
+		self.snd_powerPellet = pygame.mixer.Sound('assets/sound_effects/pacman_powerpellet.wav')
 		self.snd_chomp = pygame.mixer.Sound('assets/sound_effects/pacman_chomp.wav')
 		self.snd_eatGhost = pygame.mixer.Sound('assets/sound_effects/pacman_eatghost.wav')
 		self.snd_pacmanDeath = pygame.mixer.Sound('assets/sound_effects/pacman_death.wav')
-		self.snd_ghostSiren = pygame.mixer.Sound('assets/sound_effects/pacman_ghostSiren.mp3')
+		self.snd_ghostSiren = pygame.mixer.Sound('assets/sound_effects/pacman_ghostSiren.wav')
 
 
 		self.load()
