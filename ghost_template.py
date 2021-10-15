@@ -27,6 +27,7 @@ class Ghost_Template:
 	def update_essential(self):
 		self.posPx += self.direction
 		self.pacmanCollision()
+		self.teleportGhost()
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
 		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
@@ -41,6 +42,9 @@ class Ghost_Template:
 			self.img = self.imgArr[1]
 		elif self.direction == (self.speed,0):	#right
 			self.img = self.imgArr[0]
+
+		self.teleportGhost()
+
 
 	def draw(self):
 		self.app.screen.blit(self.img, (int(self.posPx.x),int(self.posPx.y)))
@@ -132,3 +136,14 @@ class Ghost_Template:
 		if self.rect.colliderect(self.app.player.rect) and not self.app.player.deadAnimation:
 			self.app.resetGhosts()
 			self.app.player.die()
+	
+	def teleportGhost(self):
+		if self.posGrid == [0, 14]: #left side teleporter
+			self.posGrid[0] = 26
+			self.posGrid[1] = 14
+			self.posPx = self.get_posPx()
+
+		elif self.posGrid == [27, 14]: #right side teleporter
+			self.posGrid[0] = 1
+			self.posGrid[1] = 14
+			self.posPx = self.get_posPx()
