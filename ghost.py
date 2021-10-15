@@ -73,3 +73,4 @@ class sGhost(Ghost_Template):
 	def update(self):
 		self.move()
 		self.update_essential()
+	

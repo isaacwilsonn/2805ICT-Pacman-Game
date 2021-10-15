@@ -231,7 +231,7 @@ class App:
 
 	def game_update(self):
 		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
-		
+
 		self.player.update()
 
 		self.player.wallCollide()
@@ -327,11 +327,17 @@ class App:
 
 	def spawnPellet(self):
 		dontdraw = []
-		for i in range(5):
+		for i in range(5): #pellets spawning outside the map
 			for j in range(10, 13):
 				dontdraw.append([i, j])
 			for k in range(16, 19):
 				dontdraw.append([i, k])
+		#power pellets
+		dontdraw.append([1, 5])
+		dontdraw.append([1, 23]) 
+		
+		#pellets past teleporter
+		dontdraw.append([0, 14])
 
 		with open('def_maze_layout.txt','r') as file:
 			y = 0

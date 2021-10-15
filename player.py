@@ -1,5 +1,7 @@
 import pygame
 import time
+import threading
+
 from settings import *
 vec = pygame.math.Vector2
 
@@ -18,6 +20,8 @@ class Player:
 		self.speed = 1.25
 		self.imgIndex = 0
 		self.score = 0
+		self.poweredUp = False
+
 		#sort sprites into list
 		self.spriteSheet = spriteSheet
 		#left
@@ -64,15 +68,17 @@ class Player:
 
 
 	def update(self):
+
 		self.posPx += self.direction
 		self.canChangeDirection()
+		self.teleportPlayer()
+
 
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
 		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
 		self.rect.x = self.posPx.x
 		self.rect.y = self.posPx.y
-
 
 
 		#change player img
@@ -103,6 +109,7 @@ class Player:
 		else:
 			if self.imgIndex >= 12:
 				self.imgIndex = 0
+		
 		self.eatFood()
 
 	def draw(self):
@@ -177,18 +184,30 @@ class Player:
 		
 		
 	def eatFood(self):
-		'''
-		for i in range (len(self.app.food)-2):
-			if self.posGrid == self.app.food[i].posGrid:
-				self.app.food.pop(i);
-				self.app.score+=10
-		'''
 		for food in self.app.food:
 			if self.posGrid == food.posGrid:
 				if food.foodType == True:
 					self.app.food.pop(self.app.food.index(food))
 					self.app.score += 100
-					#need to be able to transform pacman here and able to eat ghosts
+					self.poweredUp = True
+					timer = threading.Timer(10, self.powerPelletTimer)
+					timer.start() #after 10 seconds pacman will go back to normal state
 				else:
 					self.app.food.pop(self.app.food.index(food))
 					self.app.score += 10
+
+	def teleportPlayer(self):
+		if self.posGrid == [0, 14]: #left side teleporter
+			self.posGrid[0] = 26
+			self.posGrid[1] = 14
+			self.posPx = self.get_posPx()
+
+		elif self.posGrid == [27, 14]: #right side teleporter
+			self.posGrid[0] = 1
+			self.posGrid[1] = 14
+			self.posPx = self.get_posPx()
+
+
+	def powerPelletTimer(self):
+		self.poweredUp = False
+
