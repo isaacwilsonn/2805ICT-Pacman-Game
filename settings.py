@@ -22,5 +22,6 @@ MENU_FONT_SMALL = 17
 
 # player settings
 START_POS_PLAYER = vec(14,23)
+START_POS_PLAYER_RAND = vec(0,0)
 
 # mob settings

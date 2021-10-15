@@ -26,7 +26,10 @@ class App:
 		self.config = False
 		self.score = 0
 
-		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
+		if self.randomMaze:
+			self.player = Player(self, START_POS_PLAYER_RAND, self.spriteSheet)
+		else:
+			self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 		self.sGhosts = []
 		self.dGhosts = []
 		self.walls = []
@@ -35,10 +38,10 @@ class App:
 		self.mfood = []
 
 		#spawn ghosts hardcode
-		self.spawnGhosts(vec(11,11),"yellow", "smart")
-		self.spawnGhosts(vec(26,29),"red", "smart")
-		self.spawnGhosts(vec(15,11),"blue")
-		self.spawnGhosts(vec(15,17),"pink")
+		self.spawnGhosts(vec(11,15),"yellow", "smart")
+		self.spawnGhosts(vec(14,14),"red", "smart")
+		self.spawnGhosts(vec(13,14),"blue")
+		self.spawnGhosts(vec(15,14),"pink")
 
 		#sounds
 		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
@@ -97,12 +100,15 @@ class App:
 			self.dGhosts.append(dGhost(self, pos, self.spriteSheet, color))
 
 
-	def createWalls(self):
-		self.createDefaultWalls()
+	def createWalls(self, default=True):
+		if default:
+			self.createDefaultWalls()
+		else:
+			self.createDefaultWalls(False)
 		self.mirrorMaze()
 
 	def spawnFood(self):
-		self.spawnPowerPellets()
+		#self.spawnPowerPellets()
 		self.spawnPellet()
 		self.mirrorFood()
 	
@@ -135,7 +141,10 @@ class App:
 						if self.sel =="play":
 							#create walls
 							self.snd_mainMenu.stop()
-							self.createWalls()
+							if self.randomMaze:
+								self.createWalls(False)
+							else:
+								self.createWalls()
 							self.spawnFood()
 							self.state = 'playing'
 						elif self.sel == "config":
@@ -264,14 +273,11 @@ class App:
 		for ghost in self.dGhosts:
 			ghost.draw()
 
-		if self.randomMaze:
-			pass
-		else:
-			for wall in self.walls:
-				wall.draw()
+		for wall in self.walls:
+			wall.draw()
 
 		#draw grid for debug purposes
-		self.drawGrid()
+		#self.drawGrid()
 
 		# draw food
 		for food in self.food:
@@ -282,19 +288,226 @@ class App:
 
 ############################## MAZE CREATION
 
-	def createDefaultWalls(self):
-
+	def createDefaultWalls(self, default=True):
+		ignores = ['BLANK','NONE','PP']
+		if default:
+			fname = 'def_maze_layout.txt'
+		else:
+			self.randomiseMaze()
+			fname = 'rand_maze.txt'
 		x = 0
 		y = 0
-		with open('def_maze_layout.txt','r') as file:
+		with open(fname,'r') as file:
 			for line in file:
 				x = 0
 				for word in line.split():
-					if word != 'BLANK':
+					if word not in ignores:
 						self.walls.append(Wall(self,vec(x,y),word))
 					x+=1
 				y+=1
 
+	def randomiseMaze(self):
+		maze = []
+		accepted =['VERT','HORI','BLANK','PP','NONE','TOP_LEFT','BOT_LEFT','TOP_RIGHT','BOT_RIGHT']
+		#read maze into a 2d array
+		with open('rand_maze_template.txt','r') as file:
+			for line in file:
+				temp = []
+				for word in line.split():
+					if word in accepted:
+						temp.append(word)
+				maze.append(temp)
+
+
+		# possible gateways
+		v1 = random.randint(2,5)
+		v2 = random.randint(1,3)
+		print(v1,v2)
+		vert1x = [3,4]	#min and max's
+		vert1y = [6,23]
+		vert2x = [6,7]
+		vert2y = [9,20]
+
+		#vert 1
+		vert1_gates = []
+		vert1_gates.append(random.randint(vert1y[0],vert1y[1]))
+		while len(vert1_gates) < v1:
+			accept = True
+			y = random.randint(vert1y[0],vert1y[1])
+			for x in vert1_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				vert1_gates.append(y)
+
+		
+		vert2_gates = []
+		vert2_gates.append(random.randint(vert2y[0],vert2y[1]))
+		while len(vert2_gates) < v2:
+			accept = True
+			y = random.randint(vert2y[0],vert2y[1])
+			for x in vert2_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				vert2_gates.append(y)
+
+		for y in vert1_gates:
+			maze[y][vert1x[0]] = 'BLANK'
+			maze[y][vert1x[1]] = 'BLANK'
+			# set corners above
+			maze[y-1][vert1x[0]] = 'BOT_LEFT'
+			maze[y-1][vert1x[1]] = 'BOT_RIGHT'
+			# set corners below
+			maze[y+1][vert1x[0]] = 'TOP_LEFT'
+			maze[y+1][vert1x[1]] = 'TOP_RIGHT'
+
+
+		for y in vert2_gates:
+			maze[y][vert2x[0]] = 'BLANK'
+			maze[y][vert2x[1]] = 'BLANK'
+			# set corners above
+			maze[y-1][vert2x[0]] = 'BOT_LEFT'
+			maze[y-1][vert2x[1]] = 'BOT_RIGHT'
+			# set corners below
+			maze[y+1][vert2x[0]] = 'TOP_LEFT'
+			maze[y+1][vert2x[1]] = 'TOP_RIGHT'
+
+		########################## HORI BOTTOM GATES ############################
+		h1 = random.randint(1,3)
+		h2 = random.randint(0,1)
+
+
+		hori1x = [6,12]	#min and max's
+		hori1y = [25,26]
+		hori2x = [9,12]
+		hori2y = [22,23]
+
+
+		#hori 1
+		hori1_gates = []
+		hori1_gates.append(random.randint(hori1x[0],hori1x[1]))
+		while len(hori1_gates) < h1:
+			accept = True
+			x = random.randint(hori1x[0],hori1x[1])
+			for y in hori1_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				hori1_gates.append(x)
+		
+		hori2_gates = []
+		hori2_gates.append(random.randint(hori2x[0],hori2x[1]))
+		while len(hori2_gates) < h2:
+			accept = True
+			x = random.randint(hori2x[0],hori2x[1])
+			for y in hori2_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				hori2_gates.append(x)
+
+
+		for x in hori1_gates:
+			maze[hori1y[0]][x] = 'BLANK'
+			maze[hori1y[1]][x] = 'BLANK'
+			# set corners above
+			maze[hori1y[0]][x-1] = 'TOP_RIGHT'
+			maze[hori1y[1]][x-1] = 'BOT_RIGHT'
+			# set corners below
+			maze[hori1y[0]][x+1] = 'TOP_LEFT'
+			maze[hori1y[1]][x+1] = 'BOT_LEFT'
+
+
+		for x in hori2_gates:
+			maze[hori2y[0]][x] = 'BLANK'
+			maze[hori2y[1]][x] = 'BLANK'
+			# set corners above
+			maze[hori2y[0]][x-1] = 'TOP_RIGHT'
+			maze[hori2y[1]][x-1] = 'BOT_RIGHT'
+			# set corners below
+			maze[hori2y[0]][x+1] = 'TOP_LEFT'
+			maze[hori2y[1]][x+1] = 'BOT_LEFT'
+
+
+		########################## HORI TOP GATES ############################
+		h3 = random.randint(1,3)
+		h4 = random.randint(0,1)
+
+		hori3x = [6,12]	#min and max's
+		hori3y = [3,4]
+		hori4x = [9,12]
+		hori4y = [6,7]
+
+
+		#hori 1
+		hori3_gates = []
+		hori3_gates.append(random.randint(hori3x[0],hori3x[1]))
+		while len(hori3_gates) < h3:
+			accept = True
+			x = random.randint(hori3x[0],hori3x[1])
+			for y in hori3_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				hori3_gates.append(x)
+		
+		hori4_gates = []
+		hori4_gates.append(random.randint(hori4x[0],hori4x[1]))
+		while len(hori4_gates) < h2:
+			accept = True
+			x = random.randint(hori4x[0],hori4x[1])
+			for y in hori4_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				hori4_gates.append(x)
+
+
+		for x in hori3_gates:
+			maze[hori3y[0]][x] = 'BLANK'
+			maze[hori3y[1]][x] = 'BLANK'
+			# set corners above
+			maze[hori3y[0]][x-1] = 'TOP_RIGHT'
+			maze[hori3y[1]][x-1] = 'BOT_RIGHT'
+			# set corners below
+			maze[hori3y[0]][x+1] = 'TOP_LEFT'
+			maze[hori3y[1]][x+1] = 'BOT_LEFT'
+
+
+		for x in hori4_gates:
+			maze[hori4y[0]][x] = 'BLANK'
+			maze[hori4y[1]][x] = 'BLANK'
+			# set corners above
+			maze[hori4y[0]][x-1] = 'TOP_RIGHT'
+			maze[hori4y[1]][x-1] = 'BOT_RIGHT'
+			# set corners below
+			maze[hori4y[0]][x+1] = 'TOP_LEFT'
+			maze[hori4y[1]][x+1] = 'BOT_LEFT'
+
+		#make edits to the maze
+		x = 0
+		y = 0
+		for line in maze:
+			x = 0
+			for word in line:
+				#change walls based on conditions and rands
+				x+=1
+			y+=1
+
+
+
+		#print edited maze to file		
+		with open ('rand_maze.txt','w') as file:
+			for line in maze:
+				for wall in line:
+					file.write(wall+' ')
+				file.write('\n')
+
+
+
+
+				
 
 
 	def mirrorMaze(self):
@@ -322,31 +535,24 @@ class App:
 		#how to approach this when doing random generation?
 		#get a random x,y coord. check if position in walls list, check if positon is blank, put a food object?
 		#else new random number?
-		self.food.append(Food(self, vec(1, 5), True)) #top left
-		self.food.append(Food(self, vec(1, 23), True)) #bottom left
+		#self.food.append(Food(self, vec(1, 5), True)) #top left
+		#self.food.append(Food(self, vec(1, 23), True)) #bottom left
 
 	def spawnPellet(self):
-		dontdraw = []
-		for i in range(5): #pellets spawning outside the map
-			for j in range(10, 13):
-				dontdraw.append([i, j])
-			for k in range(16, 19):
-				dontdraw.append([i, k])
-		#power pellets
-		dontdraw.append([1, 5])
-		dontdraw.append([1, 23]) 
-		
-		#pellets past teleporter
-		dontdraw.append([0, 14])
+		if self.randomMaze:
+			fname = 'rand_maze.txt'
+		else:
+			fname = 'def_maze_layout.txt'
 
-		with open('def_maze_layout.txt','r') as file:
+		with open(fname,'r') as file:
 			y = 0
 			for line in file:
 				x = 0
 				for word in line.split():
 					if word == 'BLANK': 
-						if [x, y] not in dontdraw:
 							self.food.append(Food(self, vec(x, y), False))
+					elif word == 'PP':
+						self.food.append(Food(self, vec(x, y), True))
 					x+=1
 				y+=1
 		
