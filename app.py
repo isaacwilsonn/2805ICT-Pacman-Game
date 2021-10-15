@@ -321,7 +321,7 @@ class App:
 
 		########################## VERT BOTTOM GATES ############################
 		# possible gateways
-		v1 = random.randint(2,5)
+		v1 = random.randint(2,4)
 		v2 = random.randint(1,3)
 		print(v1,v2)
 		vert1x = [3,4]	#min and max's
@@ -375,7 +375,7 @@ class App:
 			maze[y+1][vert2x[1]] = 'TOP_RIGHT'
 
 		########################## HORI BOTTOM GATES ############################
-		h1 = random.randint(1,3)
+		h1 = random.randint(1,2)
 		h2 = random.randint(0,1)
 
 
@@ -432,7 +432,7 @@ class App:
 
 
 		########################## HORI TOP GATES ############################
-		h3 = random.randint(1,3)
+		h3 = random.randint(1,2)
 		h4 = random.randint(0,1)
 
 		hori3x = [6,12]	#min and max's
