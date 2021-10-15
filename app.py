@@ -26,7 +26,7 @@ class App:
 		self.config = False
 		self.score = 0
 
-		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
+		self.player = None
 		self.sGhosts = []
 		self.dGhosts = []
 		self.walls = []
@@ -139,12 +139,12 @@ class App:
 							#create walls
 							self.snd_mainMenu.stop()
 							if self.randomMaze:
-								self.player.posGrid[0] = 2
-								self.player.posGrid[1] = 2
+								self.player = Player(self, START_POS_PLAYER_RAND, self.spriteSheet)
 								self.player.get_posPx()
 								self.createWalls(False)
 							else:
 								self.createWalls()
+								self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 							self.spawnFood()
 							self.state = 'playing'
 						elif self.sel == "config":
@@ -242,7 +242,6 @@ class App:
 		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
 
 		self.player.update()
-
 		self.player.wallCollide()
 
 		#smart ghosts
@@ -319,7 +318,7 @@ class App:
 				maze.append(temp)
 
 
-		########################## VERT BOTTOM GATES ############################
+		########################## VERT GATES ############################
 		# possible gateways
 		v1 = random.randint(2,4)
 		v2 = random.randint(1,3)
