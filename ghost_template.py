@@ -175,16 +175,16 @@ class Ghost_Template:
 				self.app.resetGhosts()
 			else:
 				#would implement resetting the eaten ghosts here
-				self.app.resetGhosts()
+				#self.app.resetGhosts()
+				self.posGrid = vec(16,14)
+				self.posPx = self.get_posPx()
 	
 	def teleportGhost(self):
-		if self.posGrid == [0, 14]: #left side teleporter
+		if self.posGrid[0] < 1:
 			self.posGrid[0] = 26
-			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
 
-		elif self.posGrid == [27, 14]: #right side teleporter
+		elif self.posGrid[0] >26: #right side teleporter
 			self.posGrid[0] = 1
-			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
 

@@ -197,14 +197,12 @@ class Player:
 					self.app.score += 10
 
 	def teleportPlayer(self):
-		if self.posGrid == [0, 14]: #left side teleporter
+		if self.posGrid[0] < 1:
 			self.posGrid[0] = 26
-			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
 
-		elif self.posGrid == [27, 14]: #right side teleporter
+		elif self.posGrid[0] >26: #right side teleporter
 			self.posGrid[0] = 1
-			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
 
 

@@ -373,6 +373,37 @@ class App:
 			maze[y+1][vert2x[0]] = 'TOP_LEFT'
 			maze[y+1][vert2x[1]] = 'TOP_RIGHT'
 
+		########################## TELEPORTERS ############################
+		# possible gateways
+		tel = random.randint(2,5)
+
+		telx = [0,1]	#min and max's
+		tely = [3,26]
+
+		#vert 1
+		tel_gates = []
+		tel_gates.append(random.randint(tely[0],tely[1]))
+		while len(tel_gates) < tel:
+			accept = True
+			y = random.randint(tely[0],tely[1])
+			for x in tel_gates:
+				if abs(x-y) < 3:
+					accept = False
+			if accept:
+				tel_gates.append(y)
+
+
+		for y in tel_gates:
+			maze[y][telx[0]] = 'NONE'
+			maze[y][telx[1]] = 'NONE'
+			# set corners above
+			maze[y-1][telx[0]] = 'BOT_LEFT'
+			maze[y-1][telx[1]] = 'BOT_RIGHT'
+			# set corners below
+			maze[y+1][telx[0]] = 'TOP_LEFT'
+			maze[y+1][telx[1]] = 'TOP_RIGHT'
+
+
 		########################## HORI BOTTOM GATES ############################
 		h1 = random.randint(1,2)
 		h2 = random.randint(0,1)
