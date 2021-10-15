@@ -98,11 +98,21 @@ class Player:
 
 		if self.deadAnimation:
 			if self.imgIndex >= 59:
-				self.deadAnimation = False
-				self.posGrid = vec(14,23)
-				self.posPx = self.get_posPx()
+				if self.app.randomMaze:
+					self.posGrid[0] = 14
+					self.posGrid[1] = 21
+					self.posPx = self.get_posPx()
+				else:
+					self.posGrid[0] = 14
+					self.posGrid[1] = 23
+					self.posPx = self.get_posPx()
+				
 				time.sleep(1)
 				self.lives -= 1
+
+				if self.lives < 0:	#call end game func with Win bool = False
+					pass
+				self.deadAnimation = False
 				
 				self.imgIndex = 0
 

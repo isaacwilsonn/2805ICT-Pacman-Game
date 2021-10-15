@@ -617,3 +617,7 @@ class App:
 			if g.color == 'yellow':
 				g.posGrid = vec(13,14)
 				g.posPx = g.get_posPx()
+
+
+	def endGame(self, win=True):
+		pass
