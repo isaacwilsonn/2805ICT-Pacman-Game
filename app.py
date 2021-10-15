@@ -26,10 +26,7 @@ class App:
 		self.config = False
 		self.score = 0
 
-		if self.randomMaze:
-			self.player = Player(self, START_POS_PLAYER_RAND, self.spriteSheet)
-		else:
-			self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
+		self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
 		self.sGhosts = []
 		self.dGhosts = []
 		self.walls = []
@@ -142,6 +139,9 @@ class App:
 							#create walls
 							self.snd_mainMenu.stop()
 							if self.randomMaze:
+								self.player.posGrid[0] = 2
+								self.player.posGrid[1] = 2
+								self.player.get_posPx()
 								self.createWalls(False)
 							else:
 								self.createWalls()
@@ -319,6 +319,7 @@ class App:
 				maze.append(temp)
 
 
+		########################## VERT BOTTOM GATES ############################
 		# possible gateways
 		v1 = random.randint(2,5)
 		v2 = random.randint(1,3)
