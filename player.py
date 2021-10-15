@@ -1,5 +1,7 @@
 import pygame
 import time
+import threading
+
 from settings import *
 vec = pygame.math.Vector2
 
@@ -18,6 +20,8 @@ class Player:
 		self.speed = 1.25
 		self.imgIndex = 0
 		self.score = 0
+		self.poweredUp = False
+
 		#sort sprites into list
 		self.spriteSheet = spriteSheet
 		#left
@@ -180,18 +184,14 @@ class Player:
 		
 		
 	def eatFood(self):
-		'''
-		for i in range (len(self.app.food)-2):
-			if self.posGrid == self.app.food[i].posGrid:
-				self.app.food.pop(i);
-				self.app.score+=10
-		'''
 		for food in self.app.food:
 			if self.posGrid == food.posGrid:
 				if food.foodType == True:
 					self.app.food.pop(self.app.food.index(food))
 					self.app.score += 100
-					#need to be able to transform pacman here and able to eat ghosts
+					self.poweredUp = True
+					timer = threading.Timer(10, self.powerPelletTimer)
+					timer.start() #after 10 seconds pacman will go back to normal state
 				else:
 					self.app.food.pop(self.app.food.index(food))
 					self.app.score += 10
@@ -206,5 +206,8 @@ class Player:
 			self.posGrid[0] = 1
 			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
-			
-			
+
+
+	def powerPelletTimer(self):
+		self.poweredUp = False
+
