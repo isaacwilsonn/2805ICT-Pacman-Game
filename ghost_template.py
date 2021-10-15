@@ -1,6 +1,8 @@
 import pygame
 import math
 import random
+import time
+import threading
 from settings import *
 
 INF = 9999999
@@ -19,29 +21,39 @@ class Ghost_Template:
 		self.smartMoveCount = 0
 		self.dumbMoveCount = 0
 		self.eaten = False
-
-		self.scaredanimation = []
+		self.imgIndex = 0
+		self.ghostColours = []
 		self.imgArr = []
 		self.getSprite()
 		self.img = self.imgArr[0]
 		self.rect=pygame.Rect(self.posGrid[0],self.posGrid[1],self.app.cellWidth,self.app.cellHeight)
 
-		f1 = pygame.transform.smoothscale((self.spriteSheet.grabImage(8, 4, 16, 16)), (self.app.cellWidth-1, self.app.cellHeight-1))
-		f2 = pygame.transform.smoothscale((self.spriteSheet.grabImage(10, 4, 16, 16)), (self.app.cellWidth-1, self.app.cellHeight-1))
-		self.scaredanimation.append((f1, f2))
+		white = pygame.transform.smoothscale((self.spriteSheet.grabImage(10, 4, 16, 16)), (self.app.cellWidth-1, self.app.cellHeight-1))
+		blue = pygame.transform.smoothscale((self.spriteSheet.grabImage(8, 4, 16, 16)), (self.app.cellWidth-1, self.app.cellHeight-1))
+		
+		for i in range(16):
+			self.ghostColours.append(white)
+		
+		for i in range(16):
+			self.ghostColours.append(blue)
+	
 	def update_essential(self):
 		self.posPx += self.direction
 		self.pacmanCollision()
 		self.teleportGhost()
+		
 		#grid position
 		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
 		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
 		self.rect.x = self.posPx.x
 		self.rect.y = self.posPx.y
 
-		if self.app.player.poweredUp == True:
-
-			self.img = self.imgArr[4]
+		if self.app.player.poweredUp == True:	
+			if self.imgIndex != 30:
+				self.img = self.ghostColours[self.imgIndex]
+				self.imgIndex+=1
+			else:
+				self.imgIndex = 0
 		else:
 			if self.direction == (0,self.speed):	#down
 				self.img = self.imgArr[3]
@@ -51,7 +63,7 @@ class Ghost_Template:
 				self.img = self.imgArr[1]
 			elif self.direction == (self.speed,0):	#right
 				self.img = self.imgArr[0]
-
+		
 		self.teleportGhost()
 
 
@@ -76,7 +88,9 @@ class Ghost_Template:
 			self.imgArr.append(self.spriteSheet.grabImage(6, 7, 16, 16))
 			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 			self.imgArr.append(self.spriteSheet.grabImage(8, 4, 16, 16))
-			self.imgArr[4] = pygame.transform.smoothscale(self.imgArr[4], (self.app.cellWidth-1, self.app.cellHeight-1)) #using 4th index in array to hold transformation				
+			self.imgArr[4] = pygame.transform.smoothscale(self.imgArr[4], (self.app.cellWidth-1, self.app.cellHeight-1)) #using 4th and 5th index in array to hold transformation				
+			self.imgArr.append(self.spriteSheet.grabImage(10, 4, 16, 16))
+			self.imgArr[5] = pygame.transform.smoothscale(self.imgArr[5], (self.app.cellWidth-1, self.app.cellHeight-1)) 
 		elif self.color == "pink":
 			self.imgArr.append(self.spriteSheet.grabImage(0, 5, 16, 16))
 			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
@@ -88,6 +102,8 @@ class Ghost_Template:
 			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 			self.imgArr.append(self.spriteSheet.grabImage(8, 4, 16, 16))
 			self.imgArr[4] = pygame.transform.smoothscale(self.imgArr[4], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(10, 4, 16, 16))
+			self.imgArr[5] = pygame.transform.smoothscale(self.imgArr[5], (self.app.cellWidth-1, self.app.cellHeight-1))
 		elif self.color == "blue":
 			self.imgArr.append(self.spriteSheet.grabImage(0, 6, 16, 16))
 			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
@@ -99,6 +115,8 @@ class Ghost_Template:
 			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 			self.imgArr.append(self.spriteSheet.grabImage(8, 4, 16, 16))
 			self.imgArr[4] = pygame.transform.smoothscale(self.imgArr[4], (self.app.cellWidth-1, self.app.cellHeight-1))
+			self.imgArr.append(self.spriteSheet.grabImage(10, 4, 16, 16))
+			self.imgArr[5] = pygame.transform.smoothscale(self.imgArr[5], (self.app.cellWidth-1, self.app.cellHeight-1))
 		else: #red
 			self.imgArr.append(self.spriteSheet.grabImage(0, 4, 16, 16))
 			self.imgArr[0] = pygame.transform.smoothscale(self.imgArr[0], (self.app.cellWidth-1, self.app.cellHeight-1))
@@ -110,6 +128,8 @@ class Ghost_Template:
 			self.imgArr[3] = pygame.transform.smoothscale(self.imgArr[3], (self.app.cellWidth-1, self.app.cellHeight-1))
 			self.imgArr.append(self.spriteSheet.grabImage(8, 4, 16, 16))
 			self.imgArr[4] = pygame.transform.smoothscale(self.imgArr[4], (self.app.cellWidth-1, self.app.cellHeight-1))	
+			self.imgArr.append(self.spriteSheet.grabImage(10, 4, 16, 16))
+			self.imgArr[5] = pygame.transform.smoothscale(self.imgArr[5], (self.app.cellWidth-1, self.app.cellHeight-1))	
 	
 	def checkCollide(self,x,y):
 		rec = pygame.Rect(x,y,self.app.cellWidth,self.app.cellHeight)
@@ -150,9 +170,12 @@ class Ghost_Template:
 
 	def pacmanCollision(self):
 		if self.rect.colliderect(self.app.player.rect) and not self.app.player.deadAnimation:
-			self.app.resetGhosts()
 			if self.app.player.poweredUp != True:
 				self.app.player.die()
+				self.app.resetGhosts()
+			else:
+				#would implement resetting the eaten ghosts here
+				self.app.resetGhosts()
 	
 	def teleportGhost(self):
 		if self.posGrid == [0, 14]: #left side teleporter
@@ -164,3 +187,4 @@ class Ghost_Template:
 			self.posGrid[0] = 1
 			self.posGrid[1] = 14
 			self.posPx = self.get_posPx()
+
