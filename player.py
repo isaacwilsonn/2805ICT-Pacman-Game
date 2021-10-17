@@ -110,8 +110,8 @@ class Player:
 				time.sleep(1)
 				self.lives -= 1
 
-				if self.lives < 0:	#call end game func with Win bool = False
-					pass
+				if self.lives == 0:	#call end game func with Win bool = False
+					self.app.endGame(False)
 				self.deadAnimation = False
 				
 				self.imgIndex = 0
@@ -182,13 +182,8 @@ class Player:
 			return False
 
 	def die(self):
-		#time.sleep(0.5)
 		self.nextDirection = vec(0,0)
 		self.direction = vec(0,0)
-		#for g in self.app.dGhosts:
-			#g.direction = vec(0,0)
-		#for g in self.app.sGhosts:
-			#g.direction = vec(0,0)
 		self.app.snd_pacmanDeath.play(0,0)
 		self.deadAnimation = True
 		
@@ -205,6 +200,8 @@ class Player:
 				else:
 					self.app.food.pop(self.app.food.index(food))
 					self.app.score += 10
+					if self.app.food == []:
+						self.app.endGame(True)
 
 	def teleportPlayer(self):
 		if self.posGrid[0] < 1:

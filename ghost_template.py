@@ -20,6 +20,7 @@ class Ghost_Template:
 		self.spriteSheet = spriteSheet
 		self.smartMoveCount = 0
 		self.dumbMoveCount = 0
+		self.atBase = True
 		self.eaten = False
 		self.imgIndex = 0
 		self.ghostColours = []
@@ -38,33 +39,38 @@ class Ghost_Template:
 			self.ghostColours.append(blue)
 	
 	def update_essential(self):
-		self.posPx += self.direction
-		self.pacmanCollision()
-		self.teleportGhost()
 		
-		#grid position
-		self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
-		self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
-		self.rect.x = self.posPx.x
-		self.rect.y = self.posPx.y
 
-		if self.app.player.poweredUp == True:	
-			if self.imgIndex != 30:
-				self.img = self.ghostColours[self.imgIndex]
-				self.imgIndex+=1
-			else:
-				self.imgIndex = 0
+		if self.atBase:
+			self.direction = vec(0,0)
 		else:
-			if self.direction == (0,self.speed):	#down
-				self.img = self.imgArr[3]
-			elif self.direction == (0,-self.speed):	#up
-				self.img = self.imgArr[2]
-			elif self.direction == (-self.speed,0):	#left
-				self.img = self.imgArr[1]
-			elif self.direction == (self.speed,0):	#right
-				self.img = self.imgArr[0]
+			self.posPx += self.direction
+			self.pacmanCollision()
+			self.teleportGhost()
 		
-		self.teleportGhost()
+			#grid position
+			self.posGrid[0] = (self.posPx[0]-BORDER_BUFFER +self.app.cellWidth//2)//self.app.cellWidth+1
+			self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
+			self.rect.x = self.posPx.x
+			self.rect.y = self.posPx.y
+
+			if self.app.player.poweredUp == True:	
+				if self.imgIndex != 30:
+					self.img = self.ghostColours[self.imgIndex]
+					self.imgIndex+=1
+				else:
+					self.imgIndex = 0
+			else:
+				if self.direction == (0,self.speed):	#down
+					self.img = self.imgArr[3]
+				elif self.direction == (0,-self.speed):	#up
+					self.img = self.imgArr[2]
+				elif self.direction == (-self.speed,0):	#left
+					self.img = self.imgArr[1]
+				elif self.direction == (self.speed,0):	#right
+					self.img = self.imgArr[0]
+			
+			self.teleportGhost()
 
 
 	def draw(self):
@@ -178,6 +184,7 @@ class Ghost_Template:
 				#self.app.resetGhosts()
 				self.posGrid = vec(16,14)
 				self.posPx = self.get_posPx()
+				self.atBase = True
 	
 	def teleportGhost(self):
 		if self.posGrid[0] < 1:
@@ -187,4 +194,11 @@ class Ghost_Template:
 		elif self.posGrid[0] >26: #right side teleporter
 			self.posGrid[0] = 1
 			self.posPx = self.get_posPx()
+
+
+	def releaseFromBase(self):
+		self.posGrid = vec(14,11)
+		self.posPx = self.get_posPx()
+		self.direction = vec(self.speed,0)
+		self.atBase = False
 

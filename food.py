@@ -15,7 +15,7 @@ class Food:
 		self.rect=pygame.Rect(self.posGrid[0],self.posGrid[1],self.app.cellWidth,self.app.cellHeight)
 
 	def update(self):
-		self.pacmanCollision()
+		pass
 
 	def draw(self, powerpellet = False):
 		#self.app.screen.blit(self.img, (int(self.posPx.x),int(self.posPx.y)))
@@ -27,7 +27,3 @@ class Food:
 
 	def get_posPx(self):
 		return vec(self.posGrid.x * self.app.cellWidth + BORDER_BUFFER//2, self.posGrid.y * self.app.cellHeight + BORDER_BUFFER//2)
-
-	def pacmanCollision(self):
-		if self.rect.colliderect(self.app.player.rect):
-			print("pacman ate the food ")

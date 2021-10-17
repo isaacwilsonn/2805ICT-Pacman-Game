@@ -29,10 +29,10 @@ class sGhost(Ghost_Template):
 
 		if dirs:
 			#dumb move
-			if self.smartMoveCount >= 5:
+			if self.smartMoveCount >= 6:
 				self.direction = random.choice(dirs)
 				self.dumbMoveCount += 1
-				if self.dumbMoveCount >= 2:
+				if self.dumbMoveCount >= 1:
 					self.smartMoveCount = 0
 			#smart move
 			else:

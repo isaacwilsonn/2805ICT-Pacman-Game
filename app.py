@@ -6,6 +6,7 @@ from settings import *
 from sprites import Spritesheet
 from ghost import *
 from food import *
+import asyncio
 
 pygame.init()
 vec = pygame.math.Vector2
@@ -25,6 +26,10 @@ class App:
 		self.randomMaze = False
 		self.config = False
 		self.score = 0
+		self.highScore = 0
+		self.gameEnded = False
+		self.result= False
+		self.num_food = 0
 
 		self.player = None
 		self.sGhosts = []
@@ -33,12 +38,9 @@ class App:
 		self.mWalls = []
 		self.food = []
 		self.mfood = []
-
-		#spawn ghosts hardcode
-		self.spawnGhosts(vec(11,11),"yellow", "smart")
-		self.spawnGhosts(vec(14,11),"red", "smart")
-		self.spawnGhosts(vec(13,18),"blue")
-		self.spawnGhosts(vec(15,18),"pink")
+		self.ghostsAtBase = []
+		self.seconds = 0
+		self.start_ticks=pygame.time.get_ticks() #starter tick
 
 		#sounds
 		self.snd_mainMenu = pygame.mixer.Sound('assets/sound_effects/pacman_mainMenu.wav')
@@ -138,14 +140,29 @@ class App:
 						if self.sel =="play":
 							#create walls
 							self.snd_mainMenu.stop()
+							self.num_food = 0
 							if self.randomMaze:
 								self.player = Player(self, START_POS_PLAYER_RAND, self.spriteSheet)
 								self.player.get_posPx()
 								self.createWalls(False)
+								#spawn ghosts hardcode
+								self.spawnGhosts(vec(12,15),"yellow", "smart")
+								self.spawnGhosts(vec(14,15),"red", "smart")
+								self.spawnGhosts(vec(13,15),"blue")
+								self.spawnGhosts(vec(15,15),"pink")
 							else:
 								self.createWalls()
 								self.player = Player(self, START_POS_PLAYER, self.spriteSheet)
+								#spawn ghosts hardcode
+								self.spawnGhosts(vec(12,14),"yellow", "smart")
+								self.spawnGhosts(vec(14,14),"red", "smart")
+								self.spawnGhosts(vec(13,14),"blue")
+								self.spawnGhosts(vec(15,14),"pink")
+							
+
 							self.spawnFood()
+							self.gameEnded = False
+							
 							self.state = 'playing'
 						elif self.sel == "config":
 							self.config = True
@@ -218,7 +235,7 @@ class App:
 		self.drawText("Krittawat Auskulsuthi", self.screen, [0,800], MENU_FONT, MENU_FONT_SMALL, blue)
 
 		#high score
-		self.drawText('HIGH SCORE:', self.screen, [4,0], MENU_FONT, 14, white)
+		self.drawText('HIGH SCORE:'+str(self.highScore), self.screen, [4,0], MENU_FONT, 14, white)
 
 		pygame.display.update()
 
@@ -229,14 +246,18 @@ class App:
 			if event.type == pygame.QUIT:
 				self.running = False
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_UP:
-					self.player.move(vec(0,-self.player.speed))
-				if event.key == pygame.K_DOWN:
-					self.player.move(vec(0,self.player.speed))
-				if event.key == pygame.K_LEFT:
-					self.player.move(vec(-self.player.speed,0))
-				if event.key == pygame.K_RIGHT:
-					self.player.move(vec(self.player.speed,0))
+				if self.gameEnded:
+					self.state = 'mMenu'
+					break
+				else:
+					if event.key == pygame.K_UP:
+						self.player.move(vec(0,-self.player.speed))
+					if event.key == pygame.K_DOWN:
+						self.player.move(vec(0,self.player.speed))
+					if event.key == pygame.K_LEFT:
+						self.player.move(vec(-self.player.speed,0))
+					if event.key == pygame.K_RIGHT:
+						self.player.move(vec(self.player.speed,0))
 
 	def game_update(self):
 		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
@@ -247,40 +268,67 @@ class App:
 		#smart ghosts
 		for ghost in self.sGhosts:
 			ghost.update()
+			if ghost.atBase and ghost not in self.ghostsAtBase:
+				self.ghostsAtBase.append(ghost)
 
 		#dumb ghosts
 		for ghost in self.dGhosts:
 			ghost.update()
+			if ghost.atBase and ghost not in self.ghostsAtBase:
+				self.ghostsAtBase.append(ghost)
 		
 		#update food (check collision)
 		for food in self.food:
 			food.update()
 
+		if self.score >= self.highScore:
+			self.highScore = self.score
+
+		if self.ghostsAtBase:		
+			if self.seconds > 5:
+				g = self.ghostsAtBase.pop()
+				g.atBase = False
+				g.releaseFromBase()
+				self.start_ticks=pygame.time.get_ticks() #starter tick
+				self.seconds=(pygame.time.get_ticks()-self.start_ticks)/1000
+			else:
+				self.seconds=(pygame.time.get_ticks()-self.start_ticks)/1000 #calculate how many seconds
+
+
+
 
 	def game_draw(self):
-		self.screen.fill(black)
-		
-		self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
-		self.drawText('HIGH SCORE: 0', self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
-		self.drawText("Lives: " + str(self.player.lives), self.screen, [WIDTH//2-50, HEIGHT-30], MENU_FONT, 15, white)
-		
-		
-		self.player.draw()
+		if self.gameEnded:
+			self.screen.fill(black_trans)
+			if self.result:
+				self.drawText('You Won',self.screen, [WIDTH//2, HEIGHT//2], MENU_FONT, MENU_FONT_LARGE, white, True)
+			else:
+				self.drawText('You Lost',self.screen, [WIDTH//2, HEIGHT//2], MENU_FONT, MENU_FONT_LARGE, white, True)
 
-		for ghost in self.sGhosts:
-			ghost.draw()
-		for ghost in self.dGhosts:
-			ghost.draw()
+		else:
+			self.screen.fill(black)
+			
+			self.drawText('Score:' + str(self.score),  self.screen, [10,2.5], MENU_FONT, 15, white)
+			self.drawText('HIGH SCORE:' + str(self.highScore), self.screen, [WIDTH-250,2.5], MENU_FONT, 15, white)
+			self.drawText("Lives: " + str(self.player.lives), self.screen, [WIDTH//2-50, HEIGHT-30], MENU_FONT, 15, white)
+			
+			
+			self.player.draw()
 
-		for wall in self.walls:
-			wall.draw()
+			for ghost in self.sGhosts:
+				ghost.draw()
+			for ghost in self.dGhosts:
+				ghost.draw()
 
-		#draw grid for debug purposes
-		#self.drawGrid()
+			for wall in self.walls:
+				wall.draw()
 
-		# draw food
-		for food in self.food:
-				food.draw(food.foodType)
+			#draw grid for debug purposes
+			#self.drawGrid()
+
+			# draw food
+			for food in self.food:
+					food.draw(food.foodType)
 
 		pygame.display.update()
 
@@ -302,8 +350,11 @@ class App:
 				for word in line.split():
 					if word not in ignores:
 						self.walls.append(Wall(self,vec(x,y),word))
+					elif word == 'BLANK':
+						self.num_food += 1
 					x+=1
 				y+=1
+		print('total food = ', self.num_food)
 
 	def randomiseMaze(self):
 		maze = []
@@ -609,6 +660,7 @@ class App:
 			if g.color == 'pink':
 				g.posGrid = vec(15,14)
 				g.posPx = g.get_posPx()
+			g.atBase = True
 
 		for g in self.sGhosts:
 			if g.color == 'red':
@@ -617,7 +669,19 @@ class App:
 			if g.color == 'yellow':
 				g.posGrid = vec(13,14)
 				g.posPx = g.get_posPx()
+			g.atBase = True
+
 
 
 	def endGame(self, win=True):
-		pass
+		self.sGhosts = []
+		self.dGhosts = []
+		self.walls = []
+
+		self.player.direction = vec(0,0)
+		self.player.nextDirection = vec(0,0)
+
+		self.gameEnded = True
+		self.result = win
+
+
