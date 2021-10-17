@@ -664,7 +664,7 @@ class App:
 
 		for g in self.sGhosts:
 			if g.color == 'red':
-				g.posGrid = vec(14,11)
+				g.posGrid = vec(14,14)
 				g.posPx = g.get_posPx()
 			if g.color == 'yellow':
 				g.posGrid = vec(13,14)
