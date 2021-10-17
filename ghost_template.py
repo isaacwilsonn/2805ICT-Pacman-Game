@@ -40,6 +40,21 @@ class Ghost_Template:
 	
 	def update_essential(self):
 		
+		if self.app.player.poweredUp == True:	
+			if self.imgIndex != 30:
+				self.img = self.ghostColours[self.imgIndex]
+				self.imgIndex+=1
+			else:
+				self.imgIndex = 0
+		else:
+			if self.direction == (0,self.speed):	#down
+				self.img = self.imgArr[3]
+			elif self.direction == (0,-self.speed):	#up
+				self.img = self.imgArr[2]
+			elif self.direction == (-self.speed,0):	#left
+				self.img = self.imgArr[1]
+			elif self.direction == (self.speed,0):	#right
+				self.img = self.imgArr[0]
 
 		if self.atBase:
 			self.direction = vec(0,0)
@@ -53,22 +68,6 @@ class Ghost_Template:
 			self.posGrid[1] = (self.posPx[1]-BORDER_BUFFER +self.app.cellHeight//2)//self.app.cellHeight+1
 			self.rect.x = self.posPx.x
 			self.rect.y = self.posPx.y
-
-			if self.app.player.poweredUp == True:	
-				if self.imgIndex != 30:
-					self.img = self.ghostColours[self.imgIndex]
-					self.imgIndex+=1
-				else:
-					self.imgIndex = 0
-			else:
-				if self.direction == (0,self.speed):	#down
-					self.img = self.imgArr[3]
-				elif self.direction == (0,-self.speed):	#up
-					self.img = self.imgArr[2]
-				elif self.direction == (-self.speed,0):	#left
-					self.img = self.imgArr[1]
-				elif self.direction == (self.speed,0):	#right
-					self.img = self.imgArr[0]
 			
 			self.teleportGhost()
 
@@ -182,8 +181,18 @@ class Ghost_Template:
 			else:
 				#would implement resetting the eaten ghosts here
 				#self.app.resetGhosts()
-				self.posGrid = vec(16,14)
+				if self.color == "red":
+					self.posGrid = vec(14,14)
+				elif self.color == "blue":
+					self.posGrid = vec(13,14)
+				elif self.color == "pink":
+					self.posGrid = vec(15,14)
+				else:
+					self.posGrid = vec(12,14)
+				
 				self.posPx = self.get_posPx()
+				self.app.start_ticks=pygame.time.get_ticks() #starter tick
+				self.app.seconds=0
 				self.atBase = True
 	
 	def teleportGhost(self):

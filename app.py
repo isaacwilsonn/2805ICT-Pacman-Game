@@ -269,13 +269,13 @@ class App:
 		for ghost in self.sGhosts:
 			ghost.update()
 			if ghost.atBase and ghost not in self.ghostsAtBase:
-				self.ghostsAtBase.append(ghost)
+				self.ghostsAtBase.insert(0,ghost)
 
 		#dumb ghosts
 		for ghost in self.dGhosts:
 			ghost.update()
 			if ghost.atBase and ghost not in self.ghostsAtBase:
-				self.ghostsAtBase.append(ghost)
+				self.ghostsAtBase.insert(0,ghost)
 		
 		#update food (check collision)
 		for food in self.food:
@@ -290,7 +290,7 @@ class App:
 				g.atBase = False
 				g.releaseFromBase()
 				self.start_ticks=pygame.time.get_ticks() #starter tick
-				self.seconds=(pygame.time.get_ticks()-self.start_ticks)/1000
+				self.seconds=0
 			else:
 				self.seconds=(pygame.time.get_ticks()-self.start_ticks)/1000 #calculate how many seconds
 
@@ -304,6 +304,7 @@ class App:
 				self.drawText('You Won',self.screen, [WIDTH//2, HEIGHT//2], MENU_FONT, MENU_FONT_LARGE, white, True)
 			else:
 				self.drawText('You Lost',self.screen, [WIDTH//2, HEIGHT//2], MENU_FONT, MENU_FONT_LARGE, white, True)
+			self.drawText('press any key to continue..',self.screen, [WIDTH//2, HEIGHT//2+50], MENU_FONT, MENU_FONT_SMALL, white, True)
 
 		else:
 			self.screen.fill(black)
